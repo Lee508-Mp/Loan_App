@@ -1,0 +1,36 @@
+.login-title{font-size:2rem;font-weight:800;letter-spacing:-.03em;margin:.5rem 0 1rem}
+.top.bar{display:flex;justify-content:space-between;align-items:center}
+.admin-wrap{max-width:1100px;margin:0 auto;padding:1.25rem}
+.toolbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.75rem}
+.toolbar input,.toolbar select,textarea{font:inherit;padding:.6rem .8rem;color:var(--ink);background:var(--surface);
+  border:1.5px solid var(--line);border-radius:10px}
+.toolbar input{flex:1 1 220px}
+textarea{width:100%;resize:vertical}
+.table-scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;min-width:1250px}
+th,td{padding:.65rem .8rem;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.85rem;color:var(--muted);font-weight:600}
+td.num{font-weight:700;white-space:nowrap}
+.row-actions{white-space:nowrap;display:flex;gap:.4rem}
+.btn.small{width:auto;padding:.4rem .8rem;font-size:.9rem}
+.btn.danger{background:transparent;color:var(--err);border:1.5px solid var(--err)}
+.btn.danger:hover{background:var(--err);color:#fff}
+.badge{padding:.15rem .6rem;border-radius:999px;font-size:.85rem;font-weight:600;background:var(--bg);border:1px solid var(--line)}
+.s-new{border-color:var(--copper);color:var(--copper)}
+.s-approved{border-color:var(--green);color:var(--green)}
+.s-rejected{border-color:var(--err);color:var(--err)}
+dialog{width:min(480px,94vw);border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);padding:1.25rem}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h2{margin:0 0 1rem}
+.alert-bar{border:1.5px solid var(--copper);border-radius:var(--radius);background:var(--surface);padding:.8rem 1rem;margin-bottom:1rem}
+.alert-bar.danger{border-color:var(--err);border-left-width:8px}
+.alert-bar strong{font-size:1.15rem}
+.alert-bar.danger strong{color:var(--err)}
+.alert-bar ul{margin:.4rem 0;padding-left:1.1rem}
+.alert-bar .hint{margin:.3rem 0}
+.alert-bar .btn{margin-top:.4rem}
+tr.overdue td{background:color-mix(in srgb,var(--err) 10%,transparent)}
+tr.overdue td:first-child{box-shadow:inset 4px 0 0 var(--err)}
+.s-overdue{border-color:var(--err);background:var(--err);color:#fff}
+.s-repaid{border-color:var(--muted);color:var(--muted)}
+#eTerms{margin:0 0 .75rem}

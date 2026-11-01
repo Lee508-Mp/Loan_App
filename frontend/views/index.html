@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copperline Loans | Apply in minutes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <header class="top">
+    <span class="brand">Copperline Loans</span>
+  </header>
+
+  <noscript><p class="wrap">This site needs JavaScript. Please turn it on and reload.</p></noscript>
+  <main class="wrap" id="formPage" hidden>
+    <section class="intro">
+      <h1>How much do you need?</h1>
+      <p>Tell us the amount, confirm your details, and we continue the chat with you on WhatsApp.</p>
+    </section>
+
+    <div class="card">
+      <ol class="steps" aria-label="Progress">
+        <li id="stepDot1" class="active">1. Your details</li>
+        <li id="stepDot2">2. Review</li>
+      </ol>
+
+      <!-- STEP 1 -->
+      <form id="loanForm" novalidate>
+        <label class="amount-field" for="amount">
+          <span class="amount-label">Loan amount (ZMW)</span>
+          <span class="amount-box">
+            <span class="currency">K</span>
+            <input id="amount" name="amount" type="text" inputmode="numeric" placeholder="5000" autocomplete="off" aria-describedby="amountErr amountHint">
+          </span>
+          <small id="amountHint" class="hint">Between K500 and K50,000</small>
+          <small id="amountErr" class="error" role="alert"></small>
+        </label>
+
+        <label class="field" for="name">
+          <span>Full name</span>
+          <input id="name" name="name" type="text" autocomplete="name" aria-describedby="nameErr">
+          <small id="nameErr" class="error" role="alert"></small>
+        </label>
+
+        <label class="field" for="phone">
+          <span>Phone number</span>
+          <input id="phone" name="phone" type="tel" inputmode="tel" placeholder="0971 234 567" autocomplete="tel" aria-describedby="phoneErr">
+          <small id="phoneErr" class="error" role="alert"></small>
+        </label>
+
+        <label class="field" for="period">
+          <span>Repayment period</span>
+          <select id="period" name="period" aria-describedby="periodErr">
+            <option value="">Choose a period</option>
+            <option value="1 week">1 week</option>
+            <option value="2 weeks">2 weeks</option>
+            <option value="3 weeks">3 weeks</option>
+            <option value="1 month">1 month</option>
+          </select>
+          <small id="periodErr" class="error" role="alert"></small>
+        </label>
+
+        <label class="field" for="collateralType">
+          <span>Type of collateral</span>
+          <select id="collateralType" name="collateralType" aria-describedby="collateralErr">
+            <option value="">Choose what you will put up</option>
+            <option>Vehicle</option>
+            <option>Land or property</option>
+            <option>Electronics</option>
+            <option>Household items</option>
+            <option>Livestock</option>
+            <option>Business stock or equipment</option>
+            <option>Other</option>
+          </select>
+          <small id="collateralErr" class="error" role="alert"></small>
+        </label>
+
+        <label class="field" for="collateralDetails">
+          <span>Collateral details (optional)</span>
+          <input id="collateralDetails" name="collateralDetails" type="text" maxlength="200" placeholder="For example: Toyota Corolla, 2010">
+        </label>
+
+        <div id="terms" class="terms" hidden aria-live="polite">
+          <dl>
+            <div><dt>Interest rate</dt><dd id="tRate"></dd></div>
+            <div><dt>Interest</dt><dd id="tInterest"></dd></div>
+            <div><dt>Total to repay</dt><dd id="tTotal"></dd></div>
+            <div><dt>Estimated repayment date</dt><dd id="tDate"></dd></div>
+          </dl>
+          <small class="hint">You repay once, on the repayment date. The date is confirmed when your loan is approved.</small>
+        </div>
+
+        <fieldset class="method">
+          <legend>How should we send your application?</legend>
+          <label class="choice"><input type="radio" name="method" value="whatsapp" checked><span>WhatsApp</span></label>
+          <label class="choice"><input type="radio" name="method" value="email"><span>Email</span></label>
+        </fieldset>
+
+        <label class="field" id="emailField" for="email" hidden>
+          <span>Your email address</span>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="emailErr">
+          <small id="emailErr" class="error" role="alert"></small>
+        </label>
+
+        <button type="submit" class="btn">Review my application</button>
+      </form>
+
+      <!-- STEP 2 -->
+      <section id="review" hidden aria-live="polite">
+        <h2>Check your details</h2>
+        <dl class="summary">
+          <div><dt>Amount</dt><dd id="rAmount"></dd></div>
+          <div><dt>Name</dt><dd id="rName"></dd></div>
+          <div><dt>Phone</dt><dd id="rPhone"></dd></div>
+          <div><dt>Repayment</dt><dd id="rPeriod"></dd></div>
+          <div><dt>Collateral</dt><dd id="rCollateral"></dd></div>
+          <div><dt>Interest rate</dt><dd id="rRate"></dd></div>
+          <div><dt>Total to repay</dt><dd id="rTotal"></dd></div>
+          <div><dt>Estimated repay date</dt><dd id="rDue"></dd></div>
+          <div><dt>Send via</dt><dd id="rMethod"></dd></div>
+          <div id="rEmailRow" hidden><dt>Email</dt><dd id="rEmail"></dd></div>
+        </dl>
+
+        <label class="check">
+          <input type="checkbox" id="confirm">
+          <span>These details are correct.</span>
+        </label>
+        <small id="confirmErr" class="error" role="alert"></small>
+
+        <div class="actions">
+          <button type="button" id="editBtn" class="btn ghost">Edit details</button>
+          <button type="button" id="sendBtn" class="btn wa">Send on WhatsApp</button>
+        </div>
+        <small id="sendErr" class="error" role="alert"></small>
+      </section>
+
+      <!-- STEP 3 (email route ends here; WhatsApp route leaves the page) -->
+      <section id="done" hidden aria-live="polite">
+        <h2 id="doneTitle"></h2>
+        <p id="doneText"></p>
+        <button type="button" id="againBtn" class="btn ghost">Start a new application</button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">Copperline Loans is a demo name. Replace it with your own. <a href="/terms">Terms and Conditions</a></footer>
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/form.js"></script>
+</body>
+</html>

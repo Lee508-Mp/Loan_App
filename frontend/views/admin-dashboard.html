@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Dashboard | Copperline Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body>
+  <header class="top bar">
+    <span class="brand">Copperline Admin</span>
+    <button id="logout" class="btn ghost small" type="button">Log out</button>
+  </header>
+
+  <main class="admin-wrap">
+    <section id="alertBar" class="alert-bar" role="status" aria-live="polite" hidden>
+      <strong id="alertTitle"></strong>
+      <ul id="alertList"></ul>
+      <p id="soonNote" class="hint"></p>
+      <button id="viewOverdue" type="button" class="btn small" hidden>Show overdue only</button>
+    </section>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search name or phone" aria-label="Search">
+      <select id="statusFilter" aria-label="Filter by status">
+        <option value="">All statuses</option>
+        <option value="overdue">overdue</option><option>new</option><option>contacted</option><option>approved</option><option>rejected</option><option>repaid</option>
+      </select>
+      <span id="count" class="hint"></span>
+    </div>
+    <small id="pageErr" class="error" role="alert"></small>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Ref</th><th>Applied</th><th>Name</th><th>Phone</th><th>Amount</th><th>Total to repay</th><th>Due date</th><th>Collateral</th><th>Sent via</th><th>Status</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p id="empty" class="hint" hidden>No applications found.</p>
+  </main>
+
+  <dialog id="editDialog">
+    <form id="editForm" novalidate>
+      <h2>Edit application <span id="editRef"></span></h2>
+      <label class="field" for="eName"><span>Full name</span><input id="eName" type="text"></label>
+      <label class="field" for="ePhone"><span>Phone</span><input id="ePhone" type="tel"></label>
+      <label class="field" for="eMethod"><span>Sent via</span>
+        <select id="eMethod"><option value="whatsapp">WhatsApp</option><option value="email">Email</option></select></label>
+      <label class="field" for="eEmail"><span>Applicant email (required for email)</span><input id="eEmail" type="email"></label>
+      <label class="field" for="eAmount"><span>Amount (ZMW)</span><input id="eAmount" type="text" inputmode="numeric"></label>
+      <label class="field" for="ePeriod"><span>Repayment period</span>
+        <select id="ePeriod"><option>1 week</option><option>2 weeks</option><option>3 weeks</option><option>1 month</option></select></label>
+      <label class="field" for="eCollateral"><span>Collateral type</span>
+        <select id="eCollateral"><option value="">Not specified</option><option>Vehicle</option><option>Land or property</option><option>Electronics</option><option>Household items</option><option>Livestock</option><option>Business stock or equipment</option><option>Other</option></select></label>
+      <label class="field" for="eCollateralDetails"><span>Collateral details</span><input id="eCollateralDetails" type="text" maxlength="200"></label>
+      <label class="field" for="eStatus"><span>Status</span>
+        <select id="eStatus"><option>new</option><option>contacted</option><option>approved</option><option>rejected</option><option>repaid</option></select></label>
+      <label class="field" for="eDue"><span>Due date</span><input id="eDue" type="date"></label>
+      <p id="eTerms" class="hint"></p>
+      <label class="field" for="eNotes"><span>Notes</span><textarea id="eNotes" rows="3" maxlength="500"></textarea></label>
+      <small id="editErr" class="error" role="alert"></small>
+      <div class="actions">
+        <button type="button" id="cancelEdit" class="btn ghost">Cancel</button>
+        <button type="submit" class="btn">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/dashboard.js"></script>
+</body>
+</html>
