@@ -21,7 +21,7 @@
 | ADMIN_PASSWORD | 10 or more characters |
 | TIMEZONE | `Africa/Lusaka` (optional, this is the default) |
 | DB_PATH | `/var/data/loans.db` (only with a disk) |
-| SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM, MAIL_TO | only if you want email applications |
+| SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM, MAIL_TO | only if you want email applications |e408b137160e1a38de53e2848ea452ca
 
 After the deploy finishes, open `https://YOUR-APP.onrender.com/admin/login`. The deploy log should show Node 22.13 or newer.
 
