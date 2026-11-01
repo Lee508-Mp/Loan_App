@@ -4,15 +4,15 @@
 // Use `days` for short periods or `months` for calendar months.
 // These rates are PLACEHOLDERS. Set the real ones before going live.
 const TERMS = {
-  "1 week":  { days: 7,   rate: 5 },
-  "2 weeks": { days: 14,  rate: 8 },
-  "3 weeks": { days: 21,  rate: 12 },
-  "1 month": { months: 1, rate: 15 },
+  "1 week":  { days: 7,   rate: 15 },
+  "2 weeks": { days: 14,  rate: 25 },
+  "3 weeks": { days: 21,  rate: 35 },
+  "1 month": { months: 1, rate: 40 },
 };
 const PERIODS = Object.keys(TERMS);
 
-const MIN_AMOUNT = 500;
-const MAX_AMOUNT = 50000;
+const MIN_AMOUNT = 100;
+const MAX_AMOUNT = 150000;
 
 const COLLATERAL_TYPES = ["Vehicle", "Land or property", "Electronics", "Household items", "Livestock", "Business stock or equipment", "Other"];
 const STATUSES = ["new", "contacted", "approved", "rejected", "repaid"];

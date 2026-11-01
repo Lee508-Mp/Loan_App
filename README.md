@@ -31,6 +31,7 @@ scripts/   backup.js         tests/   automated tests         docs/   notes
 | `npm start` | Start (what Render runs) |
 | `npm test` | Run the automated tests (always before pushing) |
 | `npm run backup` | Copy the database into `backups/` |
+| `npm run admin -- <username> <password>` | Emergency: create an admin or set a new password |
 
 ## API (Postman, base URL http://localhost:3000)
 | Method | URL | Auth | Body |
@@ -40,6 +41,11 @@ scripts/   backup.js         tests/   automated tests         docs/   notes
 | POST | /api/admin/login | none | username, password |
 | POST | /api/admin/logout | cookie | |
 | GET | /api/admin/me | yes | |
+| POST | /api/admin/change-password | yes | currentPassword, newPassword |
+| GET | /api/admin/admins | yes | |
+| POST | /api/admin/admins | yes | username, password (10 to 72 characters) |
+| PUT | /api/admin/admins/:id/password | yes | newPassword (for a colleague) |
+| DELETE | /api/admin/admins/:id | yes | |
 | GET | /api/admin/alerts | yes | |
 | GET | /api/admin/applications?search=&status= | yes | status: new, contacted, approved, rejected, repaid or overdue |
 | GET | /api/admin/applications/:id | yes | |
@@ -49,6 +55,9 @@ scripts/   backup.js         tests/   automated tests         docs/   notes
 period: "1 week", "2 weeks", "3 weeks" or "1 month". contactMethod: "whatsapp" or "email".
 collateralType: Vehicle, Land or property, Electronics, Household items, Livestock, Business stock or equipment, Other.
 Postman keeps the login cookie. Or copy `token` from the login response into Authorization > Bearer Token.
+
+## Admin accounts
+The first admin is created from ADMIN_USERNAME and ADMIN_PASSWORD. After that, use the **Admins** button on the dashboard to add colleagues, reset a colleague's password, delete an admin, or change your own password. Changing `ADMIN_PASSWORD` later does NOT change an existing account. All admins see the same applications. See `docs/DEPLOY.md`.
 
 ## Terms and Conditions
 Visitors must accept `/terms` before they can see the form. The server also requires `acceptedTerms: true` and saves the time and version of acceptance with each application. Edit the text in `frontend/views/terms.html` (placeholder text: have a lawyer review it) and bump `TERMS_VERSION` in `backend/config/loanRules.js`.

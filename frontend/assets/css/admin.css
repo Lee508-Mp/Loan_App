@@ -34,3 +34,10 @@ tr.overdue td:first-child{box-shadow:inset 4px 0 0 var(--err)}
 .s-overdue{border-color:var(--err);background:var(--err);color:#fff}
 .s-repaid{border-color:var(--muted);color:var(--muted)}
 #eTerms{margin:0 0 .75rem}
+
+.bar-actions{display:flex;gap:.5rem}
+.admin-list{list-style:none;padding:0;margin:0 0 1rem}
+.admin-list li{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.55rem 0;border-bottom:1px solid var(--line)}
+#adminsDialog details{margin:.5rem 0}
+#adminsDialog summary{cursor:pointer;font-weight:600;padding:.4rem 0}
+#adminsDialog form{padding:.5rem 0}

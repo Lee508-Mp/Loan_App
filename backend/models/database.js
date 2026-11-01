@@ -27,6 +27,11 @@ db.exec(`
   );
 `);
 
+// Upgrades for the admins table. token_version goes up whenever a password changes, which ends older logins.
+const adminCols = db.prepare("PRAGMA table_info(admins)").all().map((c) => c.name);
+if (!adminCols.includes("token_version")) db.exec("ALTER TABLE admins ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0");
+if (!adminCols.includes("created_at")) db.exec("ALTER TABLE admins ADD COLUMN created_at TEXT NOT NULL DEFAULT ''");
+
 // Upgrades: add columns that older databases don't have yet
 const cols = db.prepare("PRAGMA table_info(applications)").all().map((c) => c.name);
 const addCol = (name, def) => { if (!cols.includes(name)) db.exec(`ALTER TABLE applications ADD COLUMN ${name} ${def}`); };

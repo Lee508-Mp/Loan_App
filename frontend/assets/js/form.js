@@ -1,7 +1,7 @@
 // ====== EDIT THIS: your WhatsApp number, country code first, digits only (Zambia = 260, no + and no leading 0)
-const WHATSAPP_NUMBER = "260970000000";
-const MIN_AMOUNT = 500;
-const MAX_AMOUNT = 50000;
+const WHATSAPP_NUMBER = "260976864988";
+const MIN_AMOUNT = 100;
+const MAX_AMOUNT = 150000;
 
 const form = $("loanForm"), review = $("review"), done = $("done");
 let data = null; // holds the validated values

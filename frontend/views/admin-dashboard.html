@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>Dashboard | Copperline Admin</title>
+  <title>Dashboard | kandoz Investments</title> 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
@@ -12,8 +12,11 @@
 </head>
 <body>
   <header class="top bar">
-    <span class="brand">Copperline Admin</span>
-    <button id="logout" class="btn ghost small" type="button">Log out</button>
+    <span class="brand">Kandoz Investments Admin</span>
+    <div class="bar-actions">
+      <button id="adminsBtn" class="btn ghost small" type="button">Admins</button>
+      <button id="logout" class="btn ghost small" type="button">Log out</button>
+    </div>
   </header>
 
   <main class="admin-wrap">
@@ -69,7 +72,39 @@
       </div>
     </form>
   </dialog>
+  <dialog id="adminsDialog">
+    <h2>Admins</h2>
+    <p id="adminMsg" class="hint" role="status"></p>
+    <ul id="adminList" class="admin-list"></ul>
+
+    <details>
+      <summary>Add an admin</summary>
+      <form id="addAdminForm" novalidate>
+        <label class="field" for="newAdminUser"><span>Username</span><input id="newAdminUser" type="text" autocomplete="off"></label>
+        <label class="field" for="newAdminPass"><span>Password (10 or more characters)</span><input id="newAdminPass" type="password" autocomplete="new-password"></label>
+        <button type="submit" class="btn small">Add admin</button>
+      </form>
+    </details>
+    <details>
+      <summary>Reset a colleague's password</summary>
+      <form id="resetForm" novalidate>
+        <label class="field" for="resetTarget"><span>Admin</span><select id="resetTarget"></select></label>
+        <label class="field" for="resetPass"><span>New password (10 or more characters)</span><input id="resetPass" type="password" autocomplete="new-password"></label>
+        <button type="submit" class="btn small">Reset password</button>
+      </form>
+    </details>
+    <details>
+      <summary>Change my password</summary>
+      <form id="changePassForm" novalidate>
+        <label class="field" for="curPass"><span>Current password</span><input id="curPass" type="password" autocomplete="current-password"></label>
+        <label class="field" for="myNewPass"><span>New password (10 or more characters)</span><input id="myNewPass" type="password" autocomplete="new-password"></label>
+        <button type="submit" class="btn small">Change my password</button>
+      </form>
+    </details>
+    <p><button type="button" id="closeAdmins" class="btn ghost small">Close</button></p>
+  </dialog>
   <script src="/assets/js/common.js"></script>
   <script src="/assets/js/dashboard.js"></script>
+  <script src="/assets/js/admins.js"></script>
 </body>
 </html>

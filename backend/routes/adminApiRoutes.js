@@ -2,6 +2,7 @@
 const router = require("express").Router();
 const auth = require("../controllers/authController");
 const admin = require("../controllers/adminController");
+const accounts = require("../controllers/adminAccountController");
 const { requireAdminApi } = require("../middleware/requireAdmin");
 const { loginLimiter } = require("../middleware/rateLimiters");
 
@@ -10,6 +11,11 @@ router.post("/logout", auth.logout);
 
 router.use(requireAdminApi);
 router.get("/me", auth.me);
+router.post("/change-password", accounts.changeOwnPassword);
+router.get("/admins", accounts.list);
+router.post("/admins", accounts.create);
+router.put("/admins/:id/password", accounts.resetPassword);
+router.delete("/admins/:id", accounts.remove);
 router.get("/alerts", admin.alerts);
 router.get("/applications", admin.list);
 router.get("/applications/:id", admin.get);

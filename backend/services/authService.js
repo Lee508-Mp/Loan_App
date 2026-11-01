@@ -27,7 +27,7 @@ function checkLogin(username, password) {
 }
 
 const signToken = (admin) =>
-  jwt.sign({ id: admin.id, username: admin.username }, env.jwtSecret, { algorithm: "HS256", expiresIn: TOKEN_LIFETIME_MS / 1000 });
+  jwt.sign({ id: admin.id, username: admin.username, tv: admin.token_version }, env.jwtSecret, { algorithm: "HS256", expiresIn: TOKEN_LIFETIME_MS / 1000 });
 
 const verifyToken = (token) => jwt.verify(token, env.jwtSecret, { algorithms: ["HS256"] });
 
