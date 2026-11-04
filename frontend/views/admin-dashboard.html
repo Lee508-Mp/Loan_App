@@ -57,6 +57,9 @@
       <label class="field" for="eAmount"><span>Amount (ZMW)</span><input id="eAmount" type="text" inputmode="numeric"></label>
       <label class="field" for="ePeriod"><span>Repayment period</span>
         <select id="ePeriod"><option>1 week</option><option>2 weeks</option><option>3 weeks</option><option>1 month</option></select></label>
+      <label class="field" for="eNegRate"><span>Negotiated rate % (optional)</span>
+        <input id="eNegRate" type="text" inputmode="decimal" placeholder="Leave empty for the standard rate"></label>
+      <p id="eNegPreview" class="hint"></p>
       <label class="field" for="eCollateral"><span>Collateral type</span>
         <select id="eCollateral"><option value="">Not specified</option><option>Vehicle</option><option>Land or property</option><option>Electronics</option><option>Household items</option><option>Livestock</option><option>Business stock or equipment</option><option>Other</option></select></label>
       <label class="field" for="eCollateralDetails"><span>Collateral details</span><input id="eCollateralDetails" type="text" maxlength="200"></label>

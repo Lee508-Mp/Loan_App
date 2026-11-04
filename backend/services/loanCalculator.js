@@ -24,13 +24,15 @@ function addMonths(iso, n) { // Jan 31 + 1 month = Feb 28 (never spills into Mar
 const daysBetween = (fromIso, toIso) =>
   Math.round((new Date(toIso + "T00:00:00Z") - new Date(fromIso + "T00:00:00Z")) / 86400000);
 
-function calculateLoan(amount, period, startDate = dateInTZ()) {
+// rateOverride = a negotiated rate (%) for this one loan. Leave it out to use the standard rate for the period.
+function calculateLoan(amount, period, startDate = dateInTZ(), rateOverride = null) {
   const t = TERMS[period];
   if (!t) return null;
-  const interestAmount = round2((amount * t.rate) / 100);
+  const rate = rateOverride ?? t.rate;
+  const interestAmount = round2((amount * rate) / 100);
   return {
     amount, period,
-    interestRate: t.rate,
+    interestRate: rate,
     interestAmount,
     totalRepayment: round2(amount + interestAmount),
     startDate,
@@ -42,7 +44,10 @@ function calculateLoan(amount, period, startDate = dateInTZ()) {
 function decorateOverdue(row) {
   const today = dateInTZ();
   const overdue = row.status === "approved" && row.due_date !== "" && row.due_date < today;
-  return { ...row, overdue, days_overdue: overdue ? daysBetween(row.due_date, today) : 0 };
+  return {
+    ...row, overdue, days_overdue: overdue ? daysBetween(row.due_date, today) : 0,
+    standard_rate: TERMS[row.period] ? TERMS[row.period].rate : null, // lets the Edit window show it next to a negotiated rate
+  };
 }
 
 module.exports = { round2, dateInTZ, createdDate, isValidDate, addDays, addMonths, daysBetween, calculateLoan, decorateOverdue };

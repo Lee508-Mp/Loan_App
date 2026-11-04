@@ -23,16 +23,18 @@ async function submitApplication(value) {
 const editDefaults = (e) => ({
   contactMethod: e.contact_method, email: e.email, dueDate: e.due_date,
   collateralType: e.collateral_type, collateralDetails: e.collateral_details,
+  negotiatedRate: e.negotiated_rate,
 });
 
 // Decides interest, total and due date for an edit.
-//  - Interest/total only change if the amount or period changed (so changing rates later never alters old loans).
+//  - Interest/total only change if the amount, period or negotiated rate changed (so changing rates later never alters old loans).
 //  - Approving a loan restarts the due date from today. Changing the period moves it. Typing a date wins over both.
 function planUpdate(existing, value, today = dateInTZ()) {
   const justApproved = value.status === "approved" && existing.status !== "approved";
   const startDate = justApproved ? today : (existing.approved_at || createdDate(existing));
-  const terms = calculateLoan(value.amount, value.period, startDate);
-  const termsChanged = value.amount !== existing.amount || value.period !== existing.period;
+  const terms = calculateLoan(value.amount, value.period, startDate, value.negotiatedRate);
+  const termsChanged = value.amount !== existing.amount || value.period !== existing.period
+    || value.negotiatedRate !== existing.negotiated_rate;
   const dueEdited = value.dueDate && value.dueDate !== existing.due_date;
   return {
     interestRate: termsChanged ? terms.interestRate : existing.interest_rate,
@@ -41,6 +43,7 @@ function planUpdate(existing, value, today = dateInTZ()) {
     dueDate: dueEdited ? value.dueDate
       : (justApproved || value.period !== existing.period) ? terms.dueDate : existing.due_date,
     approvedAt: justApproved ? today : existing.approved_at,
+    negotiatedRate: value.negotiatedRate,
   };
 }
 

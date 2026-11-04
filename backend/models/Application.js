@@ -57,14 +57,15 @@ const Application = {
       `UPDATE applications SET name=@name, phone=@phone, amount=@amount, period=@period,
          contact_method=@contactMethod, email=@email, collateral_type=@collateralType, collateral_details=@collateralDetails,
          status=@status, notes=@notes, interest_rate=@interestRate, interest_amount=@interestAmount,
-         total_repayment=@totalRepayment, due_date=@dueDate, approved_at=@approvedAt WHERE id=@id`
+         total_repayment=@totalRepayment, due_date=@dueDate, approved_at=@approvedAt,
+         negotiated_rate=@negotiatedRate WHERE id=@id`
     ).run({
       name: d.name, phone: d.phone, amount: d.amount, period: d.period,
       contactMethod: d.contactMethod, email: d.email,
       collateralType: d.collateralType, collateralDetails: d.collateralDetails,
       status: d.status, notes: d.notes,
       interestRate: d.interestRate, interestAmount: d.interestAmount, totalRepayment: d.totalRepayment,
-      dueDate: d.dueDate, approvedAt: d.approvedAt, id,
+      dueDate: d.dueDate, approvedAt: d.approvedAt, negotiatedRate: d.negotiatedRate ?? null, id,
     });
   },
 

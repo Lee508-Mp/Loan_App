@@ -45,6 +45,7 @@ addCol("collateral_type", "TEXT NOT NULL DEFAULT ''");
 addCol("collateral_details", "TEXT NOT NULL DEFAULT ''");
 addCol("terms_accepted_at", "TEXT NOT NULL DEFAULT ''"); // when the applicant accepted the Terms and Conditions (UTC)
 addCol("terms_version", "TEXT NOT NULL DEFAULT ''");
+addCol("negotiated_rate", "REAL");                 // NULL = standard rate for the period. A number = negotiated rate (%)
 addCol("approved_at", "TEXT NOT NULL DEFAULT ''");     // YYYY-MM-DD, set when the loan is approved
 
 // Fill in the loan columns for applications saved before they existed

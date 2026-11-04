@@ -1,5 +1,6 @@
 let rows = [];
 let editingId = null;
+let editingStandardRate = null;
 
 
 // One helper for every API call. A 401 means the session ended, so go back to login.
@@ -70,7 +71,7 @@ function render() {
       cell(formatDate(r.created_at.slice(0, 10))),
       cell(r.name), cell(r.phone),
       cell(`${formatMoney(r.amount)} (${r.period})`, "num"),
-      cell(`${formatMoney(r.total_repayment)} (${r.interest_rate}%)`, "num"),
+      cell(`${formatMoney(r.total_repayment)} (${r.interest_rate}%${r.negotiated_rate != null ? ", negotiated" : ""})`, "num"),
       cell(formatDate(r.due_date)),
       cell(r.collateral_type || "Not specified", "", r.collateral_details),
       cell(r.contact_method === "email" ? "Email: " + r.email : "WhatsApp")
@@ -100,9 +101,10 @@ function openEdit(r) {
   $("ePeriod").value = r.period; $("eMethod").value = r.contact_method; $("eEmail").value = r.email;
   $("eCollateral").value = r.collateral_type; $("eCollateralDetails").value = r.collateral_details;
   $("eStatus").value = r.status; $("eDue").value = r.due_date; $("eNotes").value = r.notes;
+  editingStandardRate = r.standard_rate; $("eNegRate").value = r.negotiated_rate ?? ""; previewNegotiated();
   $("eTerms").textContent =
     `Now: ${r.interest_rate}% interest, ${formatMoney(r.total_repayment)} to repay. ` +
-    `Interest and total change only if you change the amount or period. Approving a loan restarts the due date from today.` +
+    `Interest and total change only if you change the amount, the period or the negotiated rate. Approving a loan restarts the due date from today.` +
     (r.terms_version ? ` Accepted Terms v${r.terms_version} on ${formatDate(r.terms_accepted_at.slice(0, 10))}.` : "");
   $("editErr").textContent = "";
   $("editDialog").showModal();
@@ -117,6 +119,7 @@ $("editForm").addEventListener("submit", async (e) => {
         name: $("eName").value, phone: $("ePhone").value, amount: $("eAmount").value,
         period: $("ePeriod").value, contactMethod: $("eMethod").value, email: $("eEmail").value,
         collateralType: $("eCollateral").value, collateralDetails: $("eCollateralDetails").value,
+        negotiatedRate: $("eNegRate").value,
         status: $("eStatus").value, dueDate: $("eDue").value, notes: $("eNotes").value,
       }),
     });
@@ -124,6 +127,26 @@ $("editForm").addEventListener("submit", async (e) => {
     load();
   } catch (err) { $("editErr").textContent = err.message; }
 });
+// Live preview in the Edit window. It is only a preview: the server works out the figures that get saved.
+function previewNegotiated() {
+  const el = $("eNegPreview");
+  const text = $("eNegRate").value.trim();
+  if (text === "") {
+    el.textContent = editingStandardRate != null ? `Standard rate for the saved period: ${editingStandardRate}%. Leave this box empty to use it.` : "";
+    return;
+  }
+  const rate = Number(text);
+  const amount = Number($("eAmount").value.replace(/[,\s]/g, ""));
+  if (!Number.isFinite(rate) || rate < 0 || rate > 100 || !Number.isFinite(amount) || amount <= 0) {
+    el.textContent = "Enter a rate from 0 to 100 and a valid amount.";
+    return;
+  }
+  const interest = Math.round(amount * rate) / 100;
+  el.textContent = `At ${rate}%: interest ${formatMoney(interest)}, total to repay ${formatMoney(Math.round((amount + interest) * 100) / 100)}.`;
+}
+$("eNegRate").addEventListener("input", previewNegotiated);
+$("eAmount").addEventListener("input", previewNegotiated);
+
 $("cancelEdit").addEventListener("click", () => $("editDialog").close());
 
 async function markRepaid(r) {

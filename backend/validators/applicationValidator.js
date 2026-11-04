@@ -75,6 +75,15 @@ function validateApplication(body, { admin = false } = {}) {
     const notes = typeof b.notes === "string" ? b.notes.trim() : "";
     if (notes.length > 500) errors.notes = "Notes must be 500 characters or fewer.";
     else value.notes = notes;
+
+    // Negotiated rate (%). Empty means "use the standard rate for the period".
+    const rawRate = b.negotiatedRate;
+    if (rawRate === undefined || rawRate === null || String(rawRate).trim() === "") value.negotiatedRate = null;
+    else {
+      const rate = Number(String(rawRate).trim());
+      if (!Number.isFinite(rate) || rate < 0 || rate > 100) errors.negotiatedRate = "Negotiated rate must be a number from 0 to 100.";
+      else value.negotiatedRate = Math.round(rate * 100) / 100;
+    }
   }
   return { errors, value };
 }
