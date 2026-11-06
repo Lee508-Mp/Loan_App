@@ -98,6 +98,7 @@ function openEdit(r) {
   editingId = r.id;
   $("editRef").textContent = "#" + r.id;
   $("eName").value = r.name; $("ePhone").value = r.phone; $("eAmount").value = r.amount;
+  $("eNrc").value = r.nrc; $("eLocation").value = r.location;
   $("ePeriod").value = r.period; $("eMethod").value = r.contact_method; $("eEmail").value = r.email;
   $("eCollateral").value = r.collateral_type; $("eCollateralDetails").value = r.collateral_details;
   $("eStatus").value = r.status; $("eDue").value = r.due_date; $("eNotes").value = r.notes;
@@ -116,7 +117,7 @@ $("editForm").addEventListener("submit", async (e) => {
     await api("/api/admin/applications/" + editingId, {
       method: "PUT",
       body: JSON.stringify({
-        name: $("eName").value, phone: $("ePhone").value, amount: $("eAmount").value,
+        name: $("eName").value, phone: $("ePhone").value, nrc: $("eNrc").value, location: $("eLocation").value, amount: $("eAmount").value,
         period: $("ePeriod").value, contactMethod: $("eMethod").value, email: $("eEmail").value,
         collateralType: $("eCollateral").value, collateralDetails: $("eCollateralDetails").value,
         negotiatedRate: $("eNegRate").value,

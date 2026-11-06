@@ -23,7 +23,7 @@ async function sendApplicationEmail(app) {
       subject: `New loan application #${app.id}: K${app.amount}`,
       text:
         `New loan application #${app.id}\n\n` +
-        `Name: ${app.name}\nPhone: ${app.phone}\nEmail: ${app.email}\n` +
+        `Name: ${app.name}\nPhone: ${app.phone}\nEmail: ${app.email}\nLocation: ${app.location}\n` +
         `Amount: K${app.amount}\nRepayment period: ${app.period}\n` +
         `Collateral: ${app.collateralType}${app.collateralDetails ? " (" + app.collateralDetails + ")" : ""}\n` +
         `Interest rate: ${app.interestRate}%\nTotal to repay: K${app.totalRepayment}\nEstimated repayment date: ${app.dueDate}\n`,

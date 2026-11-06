@@ -2,13 +2,17 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { calculateLoan, addMonths, addDays, daysBetween, isValidDate, decorateOverdue } = require("../backend/services/loanCalculator");
 
-test("1 week: flat 5%, due 7 days later", () => {
+const { TERMS } = require("../backend/config/loanRules");
+
+test("1 week: your flat rate, due 7 days later", () => {
+  const rate = TERMS["1 week"].rate;
   const t = calculateLoan(1000, "1 week", "2026-10-20");
-  assert.deepEqual([t.interestRate, t.interestAmount, t.totalRepayment, t.dueDate], [5, 50, 1050, "2026-10-27"]);
+  assert.deepEqual([t.interestRate, t.interestAmount, t.totalRepayment, t.dueDate], [rate, 10 * rate, 1000 + 10 * rate, "2026-10-27"]);
 });
-test("3 weeks: 12%, due 21 days later", () => {
+test("3 weeks: your flat rate, due 21 days later", () => {
+  const rate = TERMS["3 weeks"].rate;
   const t = calculateLoan(2000, "3 weeks", "2026-10-20");
-  assert.deepEqual([t.interestAmount, t.totalRepayment, t.dueDate], [240, 2240, "2026-11-10"]);
+  assert.deepEqual([t.interestAmount, t.totalRepayment, t.dueDate], [20 * rate, 2000 + 20 * rate, "2026-11-10"]);
 });
 test("1 month uses a calendar month", () => {
   assert.equal(calculateLoan(1000, "1 month", "2026-10-20").dueDate, "2026-11-20");

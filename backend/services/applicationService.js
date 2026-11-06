@@ -23,7 +23,7 @@ async function submitApplication(value) {
 const editDefaults = (e) => ({
   contactMethod: e.contact_method, email: e.email, dueDate: e.due_date,
   collateralType: e.collateral_type, collateralDetails: e.collateral_details,
-  negotiatedRate: e.negotiated_rate,
+  negotiatedRate: e.negotiated_rate, nrc: e.nrc, location: e.location,
 });
 
 // Decides interest, total and due date for an edit.

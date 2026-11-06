@@ -50,6 +50,18 @@
           <small id="phoneErr" class="error" role="alert"></small>
         </label>
 
+        <label class="field" for="nrc">
+          <span>NRC number</span>
+          <input id="nrc" name="nrc" type="text" inputmode="numeric" placeholder="123456/78/1" autocomplete="off" aria-describedby="nrcErr">
+          <small id="nrcErr" class="error" role="alert"></small>
+        </label>
+
+        <label class="field" for="location">
+          <span>Where do you live? (town or area)</span>
+          <input id="location" name="location" type="text" maxlength="100" placeholder="For example: Kabwe, Bwacha" autocomplete="address-level2" aria-describedby="locationErr">
+          <small id="locationErr" class="error" role="alert"></small>
+        </label>
+
         <label class="field" for="period">
           <span>Repayment period</span>
           <select id="period" name="period" aria-describedby="periodErr">
@@ -114,6 +126,8 @@
           <div><dt>Amount</dt><dd id="rAmount"></dd></div>
           <div><dt>Name</dt><dd id="rName"></dd></div>
           <div><dt>Phone</dt><dd id="rPhone"></dd></div>
+          <div><dt>NRC</dt><dd id="rNrc"></dd></div>
+          <div><dt>Location</dt><dd id="rLocation"></dd></div>
           <div><dt>Repayment</dt><dd id="rPeriod"></dd></div>
           <div><dt>Collateral</dt><dd id="rCollateral"></dd></div>
           <div><dt>Interest rate</dt><dd id="rRate"></dd></div>

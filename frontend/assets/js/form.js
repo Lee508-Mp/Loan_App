@@ -77,6 +77,22 @@ function checkPhone() {
     ? setError("phone", "phoneErr", "")
     : setError("phone", "phoneErr", "Enter a Zambian number, like 0971 234 567.");
 }
+// NRC: 9 digits, typed with or without slashes or spaces. It is tidied up to look like 123456/78/1.
+function normaliseNrc(v) {
+  const d = v.replace(/[\s/\\-]/g, "");
+  return /^\d{9}$/.test(d) ? `${d.slice(0, 6)}/${d.slice(6, 8)}/${d.slice(8)}` : null;
+}
+function checkNrc() {
+  const n = normaliseNrc($("nrc").value);
+  if (n) $("nrc").value = n;
+  return n ? setError("nrc", "nrcErr", "") : setError("nrc", "nrcErr", "Enter your NRC number, like 123456/78/1.");
+}
+function checkLocation() {
+  const v = $("location").value.trim();
+  return v.length >= 2 && v.length <= 100
+    ? setError("location", "locationErr", "")
+    : setError("location", "locationErr", "Enter where you live (2 to 100 characters).");
+}
 function checkPeriod() {
   return $("period").value
     ? setError("period", "periodErr", "")
@@ -95,7 +111,7 @@ function checkEmail() {
     : setError("email", "emailErr", "Enter a valid email address.");
 }
 
-[["amount", checkAmount], ["name", checkName], ["phone", checkPhone], ["period", checkPeriod], ["collateralType", checkCollateral], ["email", checkEmail]]
+[["amount", checkAmount], ["name", checkName], ["phone", checkPhone], ["nrc", checkNrc], ["location", checkLocation], ["period", checkPeriod], ["collateralType", checkCollateral], ["email", checkEmail]]
   .forEach(([id, fn]) => $(id).addEventListener("blur", fn));
 
 // ---- show the email box only when "Email" is chosen
@@ -109,7 +125,7 @@ form.querySelectorAll('input[name="method"]').forEach((r) =>
 // ---- step 1 -> step 2
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const results = [checkAmount(), checkName(), checkPhone(), checkPeriod(), checkCollateral(), checkEmail()];
+  const results = [checkAmount(), checkName(), checkPhone(), checkNrc(), checkLocation(), checkPeriod(), checkCollateral(), checkEmail()];
   if (results.includes(false)) {
     form.querySelector(".invalid input, .invalid select")?.focus();
     return;
@@ -125,6 +141,8 @@ form.addEventListener("submit", async (e) => {
     amount: Number($("amount").value.replace(/[,\sK]/gi, "")),
     name: $("name").value.trim(),
     phone: "+" + normalisePhone($("phone").value),
+    nrc: $("nrc").value,
+    location: $("location").value.trim(),
     period: $("period").value,
     collateralType: $("collateralType").value,
     collateralDetails: $("collateralDetails").value.trim(),
@@ -135,6 +153,8 @@ form.addEventListener("submit", async (e) => {
   $("rAmount").textContent = formatMoney(data.amount);
   $("rName").textContent = data.name;
   $("rPhone").textContent = data.phone;
+  $("rNrc").textContent = data.nrc;
+  $("rLocation").textContent = data.location;
   $("rPeriod").textContent = data.period;
   $("rCollateral").textContent = data.collateralType + (data.collateralDetails ? ` (${data.collateralDetails})` : "");
   $("rRate").textContent = terms.interestRate + "%";
@@ -190,6 +210,7 @@ $("sendBtn").addEventListener("click", async () => {
         `Reference: #${out.id}\n` +
         `Name: ${data.name}\n` +
         `Phone: ${data.phone}\n` +
+        `Location: ${data.location}\n` +
         `Amount: ${formatMoney(data.amount)}\n` +
         `Repayment period: ${data.period}\n` +
         `Collateral: ${data.collateralType}${data.collateralDetails ? " (" + data.collateralDetails + ")" : ""}\n` +

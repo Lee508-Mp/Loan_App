@@ -7,14 +7,14 @@ const OVERDUE_WHERE = "status = 'approved' AND due_date <> '' AND due_date < ?";
 const Application = {
   create(d) {
     const r = db.prepare(
-      `INSERT INTO applications (name, phone, amount, period, contact_method, email, collateral_type, collateral_details,
+      `INSERT INTO applications (name, phone, nrc, location, amount, period, contact_method, email, collateral_type, collateral_details,
                                  interest_rate, interest_amount, total_repayment, due_date,
                                  terms_accepted_at, terms_version)
-       VALUES (@name, @phone, @amount, @period, @contactMethod, @email, @collateralType, @collateralDetails,
+       VALUES (@name, @phone, @nrc, @location, @amount, @period, @contactMethod, @email, @collateralType, @collateralDetails,
                @interestRate, @interestAmount, @totalRepayment, @dueDate,
                @termsAcceptedAt, @termsVersion)`
     ).run({
-      name: d.name, phone: d.phone, amount: d.amount, period: d.period,
+      name: d.name, phone: d.phone, nrc: d.nrc, location: d.location, amount: d.amount, period: d.period,
       contactMethod: d.contactMethod, email: d.email,
       collateralType: d.collateralType, collateralDetails: d.collateralDetails,
       interestRate: d.interestRate, interestAmount: d.interestAmount,
@@ -54,13 +54,13 @@ const Application = {
 
   update(id, d) {
     db.prepare(
-      `UPDATE applications SET name=@name, phone=@phone, amount=@amount, period=@period,
+      `UPDATE applications SET name=@name, phone=@phone, nrc=@nrc, location=@location, amount=@amount, period=@period,
          contact_method=@contactMethod, email=@email, collateral_type=@collateralType, collateral_details=@collateralDetails,
          status=@status, notes=@notes, interest_rate=@interestRate, interest_amount=@interestAmount,
          total_repayment=@totalRepayment, due_date=@dueDate, approved_at=@approvedAt,
          negotiated_rate=@negotiatedRate WHERE id=@id`
     ).run({
-      name: d.name, phone: d.phone, amount: d.amount, period: d.period,
+      name: d.name, phone: d.phone, nrc: d.nrc, location: d.location, amount: d.amount, period: d.period,
       contactMethod: d.contactMethod, email: d.email,
       collateralType: d.collateralType, collateralDetails: d.collateralDetails,
       status: d.status, notes: d.notes,

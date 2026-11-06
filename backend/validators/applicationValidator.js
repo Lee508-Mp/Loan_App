@@ -12,6 +12,12 @@ function normalisePhone(v) {
   return null;
 }
 
+// NRC: 6 digits, 2 digits, 1 digit. Typed with or without slashes or spaces. Stored as 123456/78/1.
+function normaliseNrc(v) {
+  const d = String(v ?? "").replace(/[\s/\\-]/g, "");
+  return /^\d{9}$/.test(d) ? `${d.slice(0, 6)}/${d.slice(6, 8)}/${d.slice(8)}` : null;
+}
+
 // For GET /api/loan-terms?amount=..&period=.. Returns { amount, period } or null.
 function validateTermsQuery(q = {}) {
   const amount = Number(String(q.amount ?? "").replace(/[,\s]/g, ""));
@@ -40,6 +46,17 @@ function validateApplication(body, { admin = false } = {}) {
 
   if (!PERIODS.includes(b.period)) errors.period = "Choose a valid repayment period.";
   else value.period = b.period;
+
+  // NRC and location are required from the public form. Admins may leave older records without them.
+  const nrc = normaliseNrc(b.nrc);
+  if (nrc) value.nrc = nrc;
+  else if (admin && (b.nrc === "" || b.nrc === undefined || b.nrc === null)) value.nrc = "";
+  else errors.nrc = "Enter a valid NRC number, like 123456/78/1.";
+
+  const location = typeof b.location === "string" ? b.location.replace(/\s+/g, " ").trim() : "";
+  if (location.length >= 2 && location.length <= 100) value.location = location;
+  else if (admin && location === "") value.location = "";
+  else errors.location = "Enter where you live (2 to 100 characters).";
 
   // Collateral: the public form must choose a type. Admins may leave old records as "" (not specified).
   const ct = b.collateralType;
@@ -88,4 +105,4 @@ function validateApplication(body, { admin = false } = {}) {
   return { errors, value };
 }
 
-module.exports = { validateApplication, validateTermsQuery, normalisePhone };
+module.exports = { validateApplication, validateTermsQuery, normalisePhone, normaliseNrc };

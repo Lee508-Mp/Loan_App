@@ -18,7 +18,7 @@ const COLLATERAL_TYPES = ["Vehicle", "Land or property", "Electronics", "Househo
 const STATUSES = ["new", "contacted", "approved", "rejected", "repaid"];
 const CONTACT_METHODS = ["whatsapp", "email"];
 // Bump this whenever you change frontend/views/terms.html. Each application records the version it accepted.
-const TERMS_VERSION = "1.0";
+const TERMS_VERSION = "1.1";
 const DUE_SOON_DAYS = 3; // the dashboard warns about loans due within this many days
 
 module.exports = { TERMS, PERIODS, MIN_AMOUNT, MAX_AMOUNT, COLLATERAL_TYPES, STATUSES, CONTACT_METHODS, TERMS_VERSION, DUE_SOON_DAYS };

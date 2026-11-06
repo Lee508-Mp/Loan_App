@@ -3,6 +3,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const env = require("../backend/config/env");
 env.assertReady();
+const { TERMS, TERMS_VERSION } = require("../backend/config/loanRules");
+const repay = (amount, period) => amount + (amount * TERMS[period].rate) / 100; // total to repay at the standard rate
 const { seedAdmin } = require("../backend/services/authService");
 const app = require("../backend/app");
 
@@ -17,13 +19,17 @@ let cookie, id;
 const authed = (url, method = "GET", body) =>
   fetch(base + url, { method, headers: { ...json, Cookie: cookie }, body: body && JSON.stringify(body) });
 
-const application = { name: "Jane Banda", phone: "0971234567", amount: 1000, period: "1 week", collateralType: "Vehicle" };
+const application = { name: "Jane Banda", phone: "0971234567", amount: 1000, period: "1 week", collateralType: "Vehicle", acceptedTerms: true, nrc: "123456/78/1", location: "Kabwe" };
 
 test("pages and assets are served; the dashboard is protected", async () => {
   assert.equal((await fetch(base + "/")).status, 200);
   assert.equal((await fetch(base + "/admin/login")).status, 200);
   assert.equal((await fetch(base + "/assets/css/style.css")).status, 200);
   assert.equal((await fetch(base + "/assets/js/common.js")).status, 200);
+  const terms = await fetch(base + "/terms");
+  assert.equal(terms.status, 200);
+  assert.match(await terms.text(), /Terms and Conditions/);
+  assert.equal((await fetch(base + "/assets/js/terms.js")).status, 200);
   const r = await fetch(base + "/admin", { redirect: "manual" });
   assert.equal(r.status, 302);
   assert.match(r.headers.get("location"), /\/admin\/login$/);
@@ -37,7 +43,7 @@ test("admin API needs a login", async () => {
 
 test("live calculator", async () => {
   const ok = await (await fetch(base + "/api/loan-terms?amount=1000&period=2%20weeks")).json();
-  assert.deepEqual([ok.interestRate, ok.totalRepayment], [8, 1080]);
+  assert.deepEqual([ok.interestRate, ok.totalRepayment], [TERMS["2 weeks"].rate, repay(1000, "2 weeks")]);
   assert.equal((await fetch(base + "/api/loan-terms?amount=10&period=2%20weeks")).status, 400);
 });
 
@@ -45,6 +51,11 @@ test("bad submissions are rejected", async () => {
   assert.equal((await post("/api/applications", { name: "X" })).status, 400);
   const { collateralType, ...noCollateral } = application;
   assert.equal((await post("/api/applications", noCollateral)).status, 400);
+  const { acceptedTerms, ...notAccepted } = application;
+  const r = await post("/api/applications", notAccepted);
+  assert.equal(r.status, 400);
+  assert.ok((await r.json()).errors.acceptedTerms);
+  assert.equal((await post("/api/applications", { ...application, acceptedTerms: "true" })).status, 400);
   const badJson = await fetch(base + "/api/applications", { method: "POST", headers: json, body: "{nope" });
   assert.equal(badJson.status, 400);
 });
@@ -53,7 +64,7 @@ test("submit: the server decides the terms, not the browser", async () => {
   const r = await post("/api/applications", { ...application, totalRepayment: 1, dueDate: "2020-01-01", interestRate: 0 });
   assert.equal(r.status, 201);
   const out = await r.json();
-  assert.equal(out.terms.totalRepayment, 1050);
+  assert.equal(out.terms.totalRepayment, repay(1000, "1 week"));
   assert.notEqual(out.terms.dueDate, "2020-01-01");
   id = out.id;
 });
@@ -75,6 +86,12 @@ test("login", async () => {
   assert.equal((await fetch(base + "/admin", { headers: { Cookie: cookie } })).status, 200);
 });
 
+test("the acceptance is recorded with the application", async () => {
+  const row = await (await authed(`/api/admin/applications/${id}`)).json();
+  assert.equal(row.terms_version, TERMS_VERSION);
+  assert.match(row.terms_accepted_at, /^\d{4}-\d{2}-\d{2}T/);
+});
+
 const edit = (extra = {}) => ({ name: "Jane Banda", phone: "+260971234567", amount: 1000, period: "1 week", status: "contacted", notes: "", ...extra });
 
 test("approve, go overdue, alert, repay", async () => {
@@ -83,7 +100,7 @@ test("approve, go overdue, alert, repay", async () => {
   assert.ok(r.days_overdue > 0);
   const alerts = await (await authed("/api/admin/alerts")).json();
   assert.equal(alerts.overdue.length, 1);
-  assert.equal(alerts.overdueTotal, 1050);
+  assert.equal(alerts.overdueTotal, repay(1000, "1 week"));
   const filtered = await (await authed("/api/admin/applications?status=overdue")).json();
   assert.equal(filtered.length, 1);
   await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "repaid" }));
@@ -104,7 +121,7 @@ test("editing notes never changes interest; changing the period does", async () 
   let r = await (await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "repaid", notes: "paid in full" }))).json();
   assert.deepEqual([r.interest_rate, r.total_repayment, r.notes], [99, 1990, "paid in full"]);
   r = await (await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "repaid", period: "2 weeks" }))).json();
-  assert.deepEqual([r.interest_rate, r.total_repayment], [8, 1080]);
+  assert.deepEqual([r.interest_rate, r.total_repayment], [TERMS["2 weeks"].rate, repay(1000, "2 weeks")]);
 });
 
 test("bad edits are rejected; delete works once", async () => {
