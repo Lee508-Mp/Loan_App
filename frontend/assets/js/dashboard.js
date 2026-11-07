@@ -27,7 +27,8 @@ async function load() {
 function renderAlerts(a) {
   const n = a.overdue.length;
   document.title = (n ? `(${n}) ` : "") + "Dashboard | Copperline Admin";   // count shows on the browser tab
-  $("alertBar").hidden = n === 0 && a.dueSoon.length === 0;
+  const waiting = a.awaitingCollateral || [];
+  $("alertBar").hidden = n === 0 && a.dueSoon.length === 0 && waiting.length === 0;
   $("alertBar").classList.toggle("danger", n > 0);
   $("alertTitle").textContent = n
     ? `${plural(n, "overdue loan")}, ${formatMoney(a.overdueTotal)} owed`
@@ -40,9 +41,10 @@ function renderAlerts(a) {
     list.append(li);
   });
   if (n > 5) { const li = document.createElement("li"); li.textContent = `and ${n - 5} more`; list.append(li); }
-  $("soonNote").textContent = a.dueSoon.length
-    ? `Due in the next 3 days: ${a.dueSoon.map((r) => `${r.name} (${formatDate(r.due_date)})`).join(", ")}`
-    : "";
+  $("soonNote").textContent = [
+    a.dueSoon.length ? `Due in the next 3 days: ${a.dueSoon.map((r) => `${r.name} (${formatDate(r.due_date)})`).join(", ")}` : "",
+    waiting.length ? `Approved, waiting for collateral: ${waiting.map((r) => `${r.name} (#${r.id})`).join(", ")}` : "",
+  ].filter(Boolean).join("  |  ");
   $("viewOverdue").hidden = n === 0;
 }
 
@@ -72,7 +74,7 @@ function render() {
       cell(r.name), cell(r.phone),
       cell(`${formatMoney(r.amount)} (${r.period})`, "num"),
       cell(`${formatMoney(r.total_repayment)} (${r.interest_rate}%${r.negotiated_rate != null ? ", negotiated" : ""})`, "num"),
-      cell(formatDate(r.due_date)),
+      cell(r.status === "approved" && !r.collateral_received_at ? "Awaiting collateral" : formatDate(r.due_date)),
       cell(r.collateral_type || "Not specified", "", r.collateral_details),
       cell(r.contact_method === "email" ? "Email: " + r.email : "WhatsApp")
     );
@@ -84,6 +86,7 @@ function render() {
 
     const act = document.createElement("td");
     act.className = "row-actions";
+    if (r.status === "approved" || r.status === "repaid") act.append(button("Messages", "ghost", () => openLoanDialog(r)));
     if (r.status === "approved") act.append(button("Mark repaid", "ghost", () => markRepaid(r)));
     act.append(button("Edit", "ghost", () => openEdit(r)), button("Delete", "danger", () => remove(r)));
 

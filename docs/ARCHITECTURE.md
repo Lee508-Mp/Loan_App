@@ -73,6 +73,10 @@ A request flows one way: **route -> controller -> service -> model -> database**
 | What counts as overdue, how due dates move | `backend/services/loanCalculator.js`, `applicationService.js` |
 | Validation messages and rules | `backend/validators/applicationValidator.js` |
 | A new database column | `backend/models/database.js` (`addCol`), then `Application.js` |
+| Wording of the approval and receipt messages | `backend/config/messageTemplates.js` |
+| Company name and receipt number prefix | `backend/config/loanRules.js` (`COMPANY_NAME`, `RECEIPT_PREFIX`) |
+| What the customer sees on the receipt | `backend/services/receiptService.js` (`receiptFor`) and `frontend/views/receipt.html` |
+| Collateral received, the repayment clock | `backend/services/receiptService.js` (`markCollateral`), `backend/services/applicationService.js` (`planUpdate`) |
 | Colours, fonts, layout | `frontend/assets/css/` |
 | Form behaviour | `frontend/assets/js/form.js` |
 | Dashboard behaviour | `frontend/assets/js/dashboard.js` |

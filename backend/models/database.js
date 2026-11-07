@@ -47,7 +47,10 @@ addCol("terms_accepted_at", "TEXT NOT NULL DEFAULT ''"); // when the applicant a
 addCol("terms_version", "TEXT NOT NULL DEFAULT ''");
 addCol("negotiated_rate", "REAL");                 // NULL = standard rate for the period. A number = negotiated rate (%)
 addCol("nrc", "TEXT NOT NULL DEFAULT ''");              // 123456/78/1
-addCol("location", "TEXT NOT NULL DEFAULT ''");         // town or area
+addCol("location", "TEXT NOT NULL DEFAULT ''");
+addCol("collateral_received_at", "TEXT NOT NULL DEFAULT ''"); // YYYY-MM-DD. The repayment clock starts here
+addCol("collateral_notes", "TEXT NOT NULL DEFAULT ''");       // serial number, plate number, condition
+addCol("receipt_token", "TEXT NOT NULL DEFAULT ''");          // the secret part of the customer's receipt link
 addCol("approved_at", "TEXT NOT NULL DEFAULT ''");     // YYYY-MM-DD, set when the loan is approved
 
 // Fill in the loan columns for applications saved before they existed
@@ -56,5 +59,17 @@ for (const r of db.prepare("SELECT id, amount, period, created_at FROM applicati
   const c = calculateLoan(r.amount, r.period, createdDate(r));
   if (c) fill.run(c.interestRate, c.interestAmount, c.totalRepayment, c.dueDate, r.id);
 }
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS messages (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    application_id INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+    kind           TEXT NOT NULL,
+    body           TEXT NOT NULL,
+    admin_username TEXT NOT NULL,
+    created_at     TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_receipt_token ON applications(receipt_token);
+`);
 
 module.exports = db;

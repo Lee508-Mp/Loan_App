@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Loan receipt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/receipt.css">
+</head>
+<body>
+  <noscript><p class="wrap">This page needs JavaScript. Please turn it on and reload.</p></noscript>
+  <main class="wrap">
+    <p id="status" class="hint" role="status">Loading your receipt...</p>
+
+    <article id="receipt" class="receipt" hidden>
+      <header class="r-head">
+        <p class="r-company" id="company"></p>
+        <h1>Loan receipt</h1>
+        <p class="hint">We have received the collateral listed below.</p>
+      </header>
+
+      <dl class="r-grid">
+        <div><dt>Receipt number</dt><dd id="receiptNumber"></dd></div>
+        <div><dt>Date received</dt><dd id="issuedOn"></dd></div>
+        <div><dt>Reference</dt><dd id="reference"></dd></div>
+      </dl>
+
+      <h2>Customer</h2>
+      <dl class="r-list">
+        <div><dt>Name</dt><dd id="customerName"></dd></div>
+        <div><dt>NRC</dt><dd id="nrc"></dd></div>
+        <div><dt>Location</dt><dd id="location"></dd></div>
+      </dl>
+
+      <h2>Loan</h2>
+      <dl class="r-list">
+        <div><dt>Amount borrowed</dt><dd id="amount"></dd></div>
+        <div><dt>Repayment period</dt><dd id="period"></dd></div>
+        <div><dt>Interest rate</dt><dd id="interestRate"></dd></div>
+        <div><dt>Interest</dt><dd id="interestAmount"></dd></div>
+        <div class="r-total"><dt>Total to repay</dt><dd id="totalRepayment"></dd></div>
+        <div><dt>Repay by</dt><dd id="dueDate"></dd></div>
+      </dl>
+
+      <h2>Collateral received</h2>
+      <dl class="r-list">
+        <div><dt>Type</dt><dd id="collateralType"></dd></div>
+        <div id="detailsRow" hidden><dt>Details</dt><dd id="collateralDetails"></dd></div>
+        <div id="notesRow" hidden><dt>Recorded on delivery</dt><dd id="collateralNotes"></dd></div>
+      </dl>
+
+      <p class="hint r-foot">Keep this receipt. Contact us if anything on it is wrong, and quote the receipt number.</p>
+      <button type="button" id="printBtn" class="btn">Print or save as PDF</button>
+    </article>
+  </main>
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/receipt.js"></script>
+</body>
+</html>

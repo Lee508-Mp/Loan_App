@@ -1,0 +1,23 @@
+.receipt{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.4rem}
+.r-head h1{font-size:clamp(1.8rem,7vw,2.4rem);line-height:1.1;margin:.1rem 0 .2rem;font-weight:800;letter-spacing:-.03em}
+.r-company{margin:0;font-weight:800;color:var(--copper);letter-spacing:.02em}
+.receipt h2{font-size:1rem;margin:1.4rem 0 .2rem;padding-bottom:.25rem;border-bottom:2px solid var(--line)}
+.r-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin:1rem 0 0}
+.r-grid div{background:var(--bg);border-radius:10px;padding:.6rem .8rem}
+.receipt dt{color:var(--muted);font-size:.88rem}
+.receipt dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.r-list{margin:0}
+.r-list div{display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px solid var(--line)}
+.r-list dd{text-align:right}
+.r-total dd{font-size:1.3rem;color:var(--copper)}
+.r-foot{margin:1.2rem 0 1rem}
+
+@media print{
+  body{background:#fff !important;color:#000 !important}
+  .top,.foot,#printBtn,#status{display:none !important}
+  .wrap{max-width:none;padding:0}
+  .receipt{border:0;background:#fff;padding:0;color:#000}
+  .receipt dt,.hint{color:#333 !important}
+  .r-company,.r-total dd{color:#000 !important}
+  .r-grid div{background:#f2f2f2 !important}
+}

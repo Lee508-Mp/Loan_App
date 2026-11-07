@@ -1,4 +1,4 @@
-# Copperline Loans: loan application site with admin dashboard
+# KANDOZ INVESTMENTS LIMITED Loans: loan application site with admin dashboard
 
 Applicants fill in a form (amount, period, collateral) and send it by WhatsApp or email. The server calculates
 interest and due dates. Admins log in to manage applications and see overdue loans.
@@ -46,6 +46,10 @@ scripts/   backup.js         tests/   automated tests         docs/   notes
 | POST | /api/admin/admins | yes | username, password (10 to 72 characters) |
 | PUT | /api/admin/admins/:id/password | yes | newPassword (for a colleague) |
 | DELETE | /api/admin/admins/:id | yes | |
+| POST | /api/admin/applications/:id/collateral-received | yes | received (true or false), notes (optional) |
+| GET | /api/admin/applications/:id/message?kind=approval | yes | kind is approval or receipt. Returns the filled-in message |
+| POST | /api/admin/applications/:id/messages | yes | kind, text. Logs the message and returns the WhatsApp link |
+| GET | /api/receipts/:token | none | The customer's receipt. Needs the secret link |
 | GET | /api/admin/alerts | yes | |
 | GET | /api/admin/applications?search=&status= | yes | status: new, contacted, approved, rejected, repaid or overdue |
 | GET | /api/admin/applications/:id | yes | |
@@ -59,13 +63,42 @@ Postman keeps the login cookie. Or copy `token` from the login response into Aut
 ## Admin accounts
 The first admin is created from ADMIN_USERNAME and ADMIN_PASSWORD. After that, use the **Admins** button on the dashboard to add colleagues, reset a colleague's password, delete an admin, or change your own password. Changing `ADMIN_PASSWORD` later does NOT change an existing account. All admins see the same applications. See `docs/DEPLOY.md`.
 
+## Collateral, messages and receipts
+From approval to receipt, an admin does four things. They all happen in the dashboard, behind the **Messages** button, which shows on approved loans.
+
+1. **Approve the loan.** Press **Edit**, set **Status** to `approved`, press **Save changes**. If you agreed a lower rate with the customer, type it in **Negotiated rate %** first. The loan now shows **Awaiting collateral** in the Due date column, and the banner at the top lists it as "Approved, waiting for collateral". The repayment clock has not started, so it cannot become overdue yet.
+2. **Send the approval message.** Press **Messages**, then **Write the approval message**. The text is filled in for you: the customer's name, the amount, the interest rate (marked when it was negotiated), the total to repay, the collateral accepted, and the line "The money will be given to you once you deliver the collateral to us". Change anything in the box, press **Open WhatsApp**, then press **Send** inside WhatsApp. The message is logged under **Messages sent**, with who sent it and when.
+3. **Record the collateral.** When the customer delivers it, press **Messages**, type notes (plate or serial number, condition), and press **Collateral received**. Today becomes the start date. The repayment date is today plus the loan period, overdue alerts count from it, and the receipt is created. Pressed by mistake? Press **Undo**. Pressing it twice never moves the date.
+4. **Send the receipt.** Press **Write the receipt message**. It contains a private link to the customer's receipt. Edit it if you like, press **Open WhatsApp**, then **Send**.
+
+**The customer's receipt** opens from the link on any phone, with no login. It shows the receipt number (like KIL-2026-0007), the date the collateral was received, the customer's name, location and NRC with only the last digits showing (`******/78/1`), the amount borrowed, the interest rate, the interest, the total to repay, the repay-by date, and the collateral. It never shows the phone number, the email address or your private notes. The customer can press **Print or save as PDF**.
+
+**Good to know**
+- WhatsApp links can only carry text, not files. That is why the receipt is sent as a link, and you press Send yourself.
+- Anyone who has the receipt link can read the receipt. The link has a random 48-character code that cannot be guessed. To switch a link off, press **Undo** on the collateral. It works again when you record the collateral again.
+- On the free Render plan the database can be wiped when the service restarts or redeploys, and then the receipt links stop working. Use a paid plan with a disk before real customers get receipts.
+- Receipt numbers are built from the year and the loan's reference number, so they are unique but can skip numbers if you delete loans.
+
+**Changing the wording and settings**
+- Message wording: `backend/config/messageTemplates.js`. Restart the server after editing it.
+- Company name and the receipt number prefix: `COMPANY_NAME` and `RECEIPT_PREFIX` in `backend/config/loanRules.js`.
+- Receipt links use the web address the admin is on. If you move to your own domain, you can set `PUBLIC_URL` (for example `https://loans.mycompany.com`) in the environment variables.
+- What the customer sees on the receipt: `backend/services/receiptService.js` and `frontend/views/receipt.html`.
+
+**Try it in Postman** (log in first, then use the loan's ID)
+1. `PUT /api/admin/applications/1` with `"status": "approved"` and the loan's other fields.
+2. `GET /api/admin/applications/1/message?kind=approval` shows the message text.
+3. `POST /api/admin/applications/1/messages` with `{"kind": "approval", "text": "your edited text"}` returns the WhatsApp link.
+4. `POST /api/admin/applications/1/collateral-received` with `{"received": true, "notes": "Plate ABC 1234"}` returns the loan, including `receipt_token`.
+5. Open `/receipt/<receipt_token>` in a browser, or call `GET /api/receipts/<receipt_token>` with no login.
+
 ## Terms and Conditions
 Visitors must accept `/terms` before they can see the form. The server also requires `acceptedTerms: true` and saves the time and version of acceptance with each application. Edit the text in `frontend/views/terms.html` (placeholder text: have a lawyer review it) and bump `TERMS_VERSION` in `backend/config/loanRules.js`.
 
 ## Rules
 - The server calculates interest, total and due date. The browser only displays them.
-- Interest is flat, charged once. The estimated due date counts from the application day and restarts when a loan is set to `approved`.
-- Overdue = status `approved` and due date before today (Zambia time). `repaid` clears it.
+- Interest is flat, charged once. The estimated due date counts from the application day and restarts when a loan is set to `approved`. The repayment clock really starts when the collateral is received, and the due date is set again then.
+- Overdue = status `approved`, collateral received, and due date before today (Zambia time). An approved loan still waiting for its collateral is never overdue. `repaid` clears it.
 - Interest and total only change if a loan's amount or period changes, so editing rates later never alters existing loans.
 - The rates in `backend/config/loanRules.js` are placeholders. Set your real ones before going live.
 

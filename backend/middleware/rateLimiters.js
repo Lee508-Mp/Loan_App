@@ -11,4 +11,5 @@ module.exports = {
   loginLimiter: limiter(10, 15),   // 10 login attempts per 15 minutes
   submitLimiter: limiter(10, 15),  // 10 applications per 15 minutes
   termsLimiter: limiter(60, 1),    // the live calculator: 60 per minute
+  receiptLimiter: limiter(30, 1),  // customers opening their receipt link: 30 per minute
 };

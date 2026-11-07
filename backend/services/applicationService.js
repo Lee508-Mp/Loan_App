@@ -31,7 +31,8 @@ const editDefaults = (e) => ({
 //  - Approving a loan restarts the due date from today. Changing the period moves it. Typing a date wins over both.
 function planUpdate(existing, value, today = dateInTZ()) {
   const justApproved = value.status === "approved" && existing.status !== "approved";
-  const startDate = justApproved ? today : (existing.approved_at || createdDate(existing));
+  // The repayment clock starts when the collateral is received. Before that, dates count from approval (an estimate).
+  const startDate = existing.collateral_received_at || (justApproved ? today : (existing.approved_at || createdDate(existing)));
   const terms = calculateLoan(value.amount, value.period, startDate, value.negotiatedRate);
   const termsChanged = value.amount !== existing.amount || value.period !== existing.period
     || value.negotiatedRate !== existing.negotiated_rate;
@@ -41,7 +42,7 @@ function planUpdate(existing, value, today = dateInTZ()) {
     interestAmount: termsChanged ? terms.interestAmount : existing.interest_amount,
     totalRepayment: termsChanged ? terms.totalRepayment : existing.total_repayment,
     dueDate: dueEdited ? value.dueDate
-      : (justApproved || value.period !== existing.period) ? terms.dueDate : existing.due_date,
+      : ((justApproved && !existing.collateral_received_at) || value.period !== existing.period) ? terms.dueDate : existing.due_date,
     approvedAt: justApproved ? today : existing.approved_at,
     negotiatedRate: value.negotiatedRate,
   };
@@ -60,7 +61,8 @@ function getAlerts() {
   const today = dateInTZ();
   const overdue = Application.findOverdue(today).map(decorateOverdue);
   const dueSoon = Application.findDueBetween(today, addDays(today, DUE_SOON_DAYS)).map(decorateOverdue);
-  return { today, overdue, dueSoon, overdueTotal: round2(overdue.reduce((sum, r) => sum + r.total_repayment, 0)) };
+  const awaitingCollateral = Application.findAwaitingCollateral().map(decorateOverdue);
+  return { today, overdue, dueSoon, awaitingCollateral, overdueTotal: round2(overdue.reduce((sum, r) => sum + r.total_repayment, 0)) };
 }
 
 module.exports = { submitApplication, editDefaults, planUpdate, updateApplication, listApplications, getAlerts };

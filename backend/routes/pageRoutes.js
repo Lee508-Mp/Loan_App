@@ -5,6 +5,7 @@ const { requireAdminPage } = require("../middleware/requireAdmin");
 
 router.get("/", pages.home);
 router.get("/terms", pages.termsPage);
+router.get("/receipt/:token", pages.receiptPage);
 router.get("/admin/login", pages.loginPage);
 router.get("/admin/login.html", (req, res) => res.redirect("/admin/login")); // old address
 router.get("/admin", requireAdminPage, pages.dashboardPage);

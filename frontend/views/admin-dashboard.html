@@ -108,8 +108,35 @@
     </details>
     <p><button type="button" id="closeAdmins" class="btn ghost small">Close</button></p>
   </dialog>
+  <dialog id="loanDialog">
+    <h2 id="loanTitle">Collateral and messages</h2>
+    <p id="loanMsg" class="hint" role="status"></p>
+
+    <h3>1. Approval message</h3>
+    <p class="hint">Tells the customer the loan is approved and the collateral is accepted. You can edit the text before it is sent.</p>
+    <button type="button" id="draftApproval" class="btn small">Write the approval message</button>
+
+    <h3>2. Collateral</h3>
+    <div id="collateralBox"></div>
+
+    <h3>3. Receipt message</h3>
+    <p class="hint">Sends the customer a private link to their receipt.</p>
+    <button type="button" id="draftReceipt" class="btn small">Write the receipt message</button>
+
+    <div id="draftBox" hidden>
+      <label class="field" for="draftText"><span id="draftLabel">Message</span><textarea id="draftText" rows="10" maxlength="1500"></textarea></label>
+      <p class="hint">Opens WhatsApp with this text for <b id="draftPhone"></b>. You press Send there.</p>
+      <button type="button" id="sendDraft" class="btn small">Open WhatsApp</button>
+      <a id="fallbackLink" href="#" target="_blank" rel="noopener" hidden>WhatsApp did not open? Click here.</a>
+    </div>
+
+    <h3>Messages sent</h3>
+    <ul id="sentList" class="admin-list"></ul>
+    <p><button type="button" id="closeLoan" class="btn ghost small">Close</button></p>
+  </dialog>
   <script src="/assets/js/common.js"></script>
   <script src="/assets/js/dashboard.js"></script>
   <script src="/assets/js/admins.js"></script>
+  <script src="/assets/js/messages.js"></script>
 </body>
 </html>

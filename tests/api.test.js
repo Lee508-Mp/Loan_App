@@ -94,8 +94,14 @@ test("the acceptance is recorded with the application", async () => {
 
 const edit = (extra = {}) => ({ name: "Jane Banda", phone: "+260971234567", amount: 1000, period: "1 week", status: "contacted", notes: "", ...extra });
 
-test("approve, go overdue, alert, repay", async () => {
-  const r = await (await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "approved", dueDate: "2026-01-01" }))).json();
+test("approve, receive the collateral, go overdue, alert, repay", async () => {
+  // approved but no collateral yet: the clock has not started, so it can never be overdue
+  let r = await (await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "approved", dueDate: "2026-01-01" }))).json();
+  assert.equal(r.overdue, false);
+  assert.equal((await (await authed("/api/admin/alerts")).json()).overdue.length, 0);
+  // the collateral arrives, then the due date passes
+  assert.equal((await authed(`/api/admin/applications/${id}/collateral-received`, "POST", { received: true })).status, 200);
+  r = await (await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "approved", dueDate: "2026-01-01" }))).json();
   assert.equal(r.overdue, true);
   assert.ok(r.days_overdue > 0);
   const alerts = await (await authed("/api/admin/alerts")).json();

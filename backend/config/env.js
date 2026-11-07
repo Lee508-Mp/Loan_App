@@ -8,6 +8,7 @@ const env = {
   jwtSecret: e.JWT_SECRET,
   dbPath: e.DB_PATH,                              // set this to a persistent disk path in production
   timezone: e.TIMEZONE || "Africa/Lusaka",        // "today" and due dates follow this timezone
+  publicUrl: (e.PUBLIC_URL || "").replace(/\/+$/, ""), // optional, for example https://loans.mycompany.com. Used in receipt links
   admin: { username: e.ADMIN_USERNAME, password: e.ADMIN_PASSWORD },
   mail: { host: e.SMTP_HOST, port: Number(e.SMTP_PORT) || 587, user: e.SMTP_USER, pass: e.SMTP_PASS, from: e.MAIL_FROM, to: e.MAIL_TO },
 

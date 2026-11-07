@@ -43,7 +43,7 @@ function calculateLoan(amount, period, startDate = dateInTZ(), rateOverride = nu
 // Overdue = approved, not yet repaid, and the due date is before today.
 function decorateOverdue(row) {
   const today = dateInTZ();
-  const overdue = row.status === "approved" && row.due_date !== "" && row.due_date < today;
+  const overdue = row.status === "approved" && Boolean(row.collateral_received_at) && row.due_date !== "" && row.due_date < today;
   return {
     ...row, overdue, days_overdue: overdue ? daysBetween(row.due_date, today) : 0,
     standard_rate: TERMS[row.period] ? TERMS[row.period].rate : null, // lets the Edit window show it next to a negotiated rate

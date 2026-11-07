@@ -29,9 +29,11 @@ test("date helpers", () => {
   assert.ok(!isValidDate("2026-02-30"));
   assert.ok(!isValidDate("10/10/2026"));
 });
-test("overdue only when approved and past due", () => {
-  assert.equal(decorateOverdue({ status: "approved", due_date: "2020-01-01" }).overdue, true);
-  assert.equal(decorateOverdue({ status: "repaid", due_date: "2020-01-01" }).overdue, false);
-  assert.equal(decorateOverdue({ status: "approved", due_date: "2999-01-01" }).overdue, false);
+test("overdue only when approved, collateral received, and past due", () => {
+  const received = { collateral_received_at: "2019-12-25" };
+  assert.equal(decorateOverdue({ status: "approved", due_date: "2020-01-01", ...received }).overdue, true);
+  assert.equal(decorateOverdue({ status: "approved", due_date: "2020-01-01" }).overdue, false);           // clock not started yet
+  assert.equal(decorateOverdue({ status: "repaid", due_date: "2020-01-01", ...received }).overdue, false);
+  assert.equal(decorateOverdue({ status: "approved", due_date: "2999-01-01", ...received }).overdue, false);
   assert.equal(decorateOverdue({ status: "new", due_date: "" }).overdue, false);
 });

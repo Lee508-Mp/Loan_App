@@ -2,7 +2,8 @@
 const db = require("./database");
 const { STATUSES } = require("../config/loanRules");
 
-const OVERDUE_WHERE = "status = 'approved' AND due_date <> '' AND due_date < ?";
+// Overdue only counts once the collateral has been received, because that is when the repayment clock starts.
+const OVERDUE_WHERE = "status = 'approved' AND collateral_received_at <> '' AND due_date <> '' AND due_date < ?";
 
 const Application = {
   create(d) {
@@ -48,8 +49,23 @@ const Application = {
 
   findDueBetween(fromDate, toDate) {
     return db.prepare(
-      "SELECT * FROM applications WHERE status = 'approved' AND due_date >= ? AND due_date <= ? ORDER BY due_date ASC"
+      "SELECT * FROM applications WHERE status = 'approved' AND collateral_received_at <> '' AND due_date >= ? AND due_date <= ? ORDER BY due_date ASC"
     ).all(fromDate, toDate);
+  },
+
+  // Approved, but the customer has not delivered the collateral yet
+  findAwaitingCollateral() {
+    return db.prepare("SELECT * FROM applications WHERE status = 'approved' AND collateral_received_at = '' ORDER BY id ASC").all();
+  },
+
+  findByReceiptToken(token) {
+    return db.prepare("SELECT * FROM applications WHERE receipt_token = ?").get(token);
+  },
+
+  setCollateral(id, d) {
+    db.prepare(
+      "UPDATE applications SET collateral_received_at=@receivedAt, collateral_notes=@notes, receipt_token=@token, due_date=@dueDate WHERE id=@id"
+    ).run({ receivedAt: d.receivedAt, notes: d.notes, token: d.token, dueDate: d.dueDate, id });
   },
 
   update(id, d) {
