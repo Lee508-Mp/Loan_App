@@ -47,14 +47,17 @@ scripts/   backup.js         tests/   automated tests         docs/   notes
 | PUT | /api/admin/admins/:id/password | yes | newPassword (for a colleague) |
 | DELETE | /api/admin/admins/:id | yes | |
 | POST | /api/admin/applications/:id/collateral-received | yes | received (true or false), notes (optional) |
+| POST | /api/admin/applications/:id/money-given | yes | given (true or false), date (optional, YYYY-MM-DD, default today) |
+| POST | /api/admin/applications/:id/repayment | yes | paidOn (optional), amountPaid (optional), moneyGivenOn (only for older loans with no date) |
+| POST | /api/admin/applications/:id/cancel | yes | reason (at least 3 characters) |
 | GET | /api/admin/applications/:id/message?kind=approval | yes | kind is approval or receipt. Returns the filled-in message |
 | POST | /api/admin/applications/:id/messages | yes | kind, text. Logs the message and returns the WhatsApp link |
 | GET | /api/receipts/:token | none | The customer's receipt. Needs the secret link |
 | GET | /api/admin/alerts | yes | |
-| GET | /api/admin/applications?search=&status= | yes | status: new, contacted, approved, rejected, repaid or overdue |
+| GET | /api/admin/applications?search=&status= | yes | status: new, contacted, approved, rejected, repaid, cancelled or overdue |
 | GET | /api/admin/applications/:id | yes | |
 | PUT | /api/admin/applications/:id | yes | name, phone, amount, period, collateralType, collateralDetails, contactMethod, email, status, notes, dueDate (optional, YYYY-MM-DD) |
-| DELETE | /api/admin/applications/:id | yes | |
+| DELETE | /api/admin/applications/:id | yes | Refused (409) if money was given or the loan is repaid. Use cancel instead |
 
 period: "1 week", "2 weeks", "3 weeks" or "1 month". contactMethod: "whatsapp" or "email".
 collateralType: Vehicle, Land or property, Electronics, Household items, Livestock, Business stock or equipment, Other.
@@ -92,6 +95,21 @@ From approval to receipt, an admin does four things. They all happen in the dash
 4. `POST /api/admin/applications/1/collateral-received` with `{"received": true, "notes": "Plate ABC 1234"}` returns the loan, including `receipt_token`.
 5. Open `/receipt/<receipt_token>` in a browser, or call `GET /api/receipts/<receipt_token>` with no login.
 
+## Money given, repayments and cancelled loans
+These records are the base for the profit report. Every loan now keeps three dates: when the money was given, when it was repaid, and the amount paid. Fill them in as things happen, and the report will be right.
+
+**1. Money given.** After the collateral is received, press **Messages** on the loan. Step 3, **Money given**, has a date box (leave it empty for today). Press **Money given**. The loan's **Money given** column shows the date. Pressed by mistake? Press **Undo** (not possible once the loan is repaid). Until you do this, the banner lists the loan under "Collateral received, money not given yet", so nobody is forgotten.
+
+**2. Mark repaid.** When the customer pays back, press **Mark repaid** on the row. A small window asks for the repaid date (empty means today) and the amount paid. The total to repay is filled in for you. Change it if the customer paid a different amount. Press **Save repayment**. The loan becomes `repaid`, and the overdue alert goes away. The repaid date cannot be in the future, or before the money was given.
+
+**3. Cancel a loan.** If a loan will not go ahead after money was given, press **Cancel loan** on the row and give a reason. The loan stays on record, marked `cancelled`, and the money it received still counts as money given out. A cancelled loan keeps its reason and date.
+
+**Delete is limited.** The **Delete** button only appears for loans where no money was given. After that, the button becomes **Cancel loan**, and repaid loans can only be viewed or edited. This stops past reports from changing.
+
+**Older loans.** Loans you repaid before this update have no dates. The banner lists them: "Repaid loans missing dates". Press **Edit** on each, fill in **Money given on**, **Repaid on** and **Amount paid**, and save. The banner clears when every repaid loan has its dates. For an older approved loan, **Mark repaid** also asks for the money given date.
+
+**The Edit window** also has these fields, for corrections: Money given on, Repaid on, Amount paid and Cancel reason. Saving checks that the dates make sense (for example, a loan cannot be repaid before the money was given). If you set a repaid loan back to `approved`, its repaid date and amount are cleared, so you can fix a mistake.
+
 ## Terms and Conditions
 Visitors must accept `/terms` before they can see the form. The server also requires `acceptedTerms: true` and saves the time and version of acceptance with each application. Edit the text in `frontend/views/terms.html` (placeholder text: have a lawyer review it) and bump `TERMS_VERSION` in `backend/config/loanRules.js`.
 
@@ -99,6 +117,7 @@ Visitors must accept `/terms` before they can see the form. The server also requ
 - The server calculates interest, total and due date. The browser only displays them.
 - Interest is flat, charged once. The estimated due date counts from the application day and restarts when a loan is set to `approved`. The repayment clock really starts when the collateral is received, and the due date is set again then.
 - Overdue = status `approved`, collateral received, and due date before today (Zambia time). An approved loan still waiting for its collateral is never overdue. `repaid` clears it.
+- A loan with money given, or a repaid loan, can never be deleted. It is kept on record. A loan that will not go ahead is cancelled, with a reason.
 - Interest and total only change if a loan's amount or period changes, so editing rates later never alters existing loans.
 - The rates in `backend/config/loanRules.js` are placeholders. Set your real ones before going live.
 

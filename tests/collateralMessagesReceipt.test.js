@@ -117,6 +117,7 @@ test("overdue now counts from the collateral date", async () => {
   const row = await (await call(`/api/admin/applications/${id}`, "PUT", edit({ status: "approved", negotiatedRate: 10, dueDate: "2026-01-01" }))).json();
   assert.equal(row.overdue, true);
   assert.equal((await (await call("/api/admin/alerts")).json()).overdue.length, 1);
+  await call(`/api/admin/applications/${id}/money-given`, "POST", {});
   await call(`/api/admin/applications/${id}`, "PUT", edit({ status: "repaid", negotiatedRate: 10 }));
   assert.equal((await (await call("/api/admin/alerts")).json()).overdue.length, 0);
 });
@@ -135,6 +136,7 @@ test("long notes are refused and deleting a loan removes its messages", async ()
   assert.equal((await call(`/api/admin/applications/${id}/collateral-received`, "POST", { received: true, notes: "x".repeat(301) })).status, 400);
   const db = require("../backend/models/database");
   assert.ok(db.prepare("SELECT COUNT(*) c FROM messages WHERE application_id = ?").get(id).c >= 1);
+  await call(`/api/admin/applications/${id}/money-given`, "POST", { given: false }); // loans with money given cannot be deleted
   assert.equal((await call(`/api/admin/applications/${id}`, "DELETE")).status, 200);
   assert.equal(db.prepare("SELECT COUNT(*) c FROM messages WHERE application_id = ?").get(id).c, 0);
   assert.equal((await fetch(`${base}/api/receipts/${token}`)).status, 404);

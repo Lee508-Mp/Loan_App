@@ -58,6 +58,16 @@ const Application = {
     return db.prepare("SELECT * FROM applications WHERE status = 'approved' AND collateral_received_at = '' ORDER BY id ASC").all();
   },
 
+  // Collateral is in, but the money has not been handed over yet
+  findAwaitingMoney() {
+    return db.prepare("SELECT * FROM applications WHERE status = 'approved' AND collateral_received_at <> '' AND money_given_on = '' ORDER BY id ASC").all();
+  },
+
+  // Repaid loans that are missing the dates the profit report will need
+  findMissingDates() {
+    return db.prepare("SELECT * FROM applications WHERE status = 'repaid' AND (money_given_on = '' OR repaid_on = '') ORDER BY id ASC").all();
+  },
+
   findByReceiptToken(token) {
     return db.prepare("SELECT * FROM applications WHERE receipt_token = ?").get(token);
   },
@@ -68,20 +78,31 @@ const Application = {
     ).run({ receivedAt: d.receivedAt, notes: d.notes, token: d.token, dueDate: d.dueDate, id });
   },
 
+  // The money given, repaid and cancelled records (used by the quick buttons)
+  setLifecycle(id, d) {
+    db.prepare(
+      `UPDATE applications SET status=@status, money_given_on=@moneyGivenOn, repaid_on=@repaidOn, amount_paid=@amountPaid,
+         cancelled_on=@cancelledOn, cancel_reason=@cancelReason WHERE id=@id`
+    ).run({ status: d.status, moneyGivenOn: d.moneyGivenOn, repaidOn: d.repaidOn, amountPaid: d.amountPaid,
+            cancelledOn: d.cancelledOn, cancelReason: d.cancelReason, id });
+  },
+
   update(id, d) {
     db.prepare(
       `UPDATE applications SET name=@name, phone=@phone, nrc=@nrc, location=@location, amount=@amount, period=@period,
          contact_method=@contactMethod, email=@email, collateral_type=@collateralType, collateral_details=@collateralDetails,
          status=@status, notes=@notes, interest_rate=@interestRate, interest_amount=@interestAmount,
          total_repayment=@totalRepayment, due_date=@dueDate, approved_at=@approvedAt,
-         negotiated_rate=@negotiatedRate WHERE id=@id`
+         negotiated_rate=@negotiatedRate, money_given_on=@moneyGivenOn, repaid_on=@repaidOn, amount_paid=@amountPaid,
+         cancelled_on=@cancelledOn, cancel_reason=@cancelReason WHERE id=@id`
     ).run({
       name: d.name, phone: d.phone, nrc: d.nrc, location: d.location, amount: d.amount, period: d.period,
       contactMethod: d.contactMethod, email: d.email,
       collateralType: d.collateralType, collateralDetails: d.collateralDetails,
       status: d.status, notes: d.notes,
       interestRate: d.interestRate, interestAmount: d.interestAmount, totalRepayment: d.totalRepayment,
-      dueDate: d.dueDate, approvedAt: d.approvedAt, negotiatedRate: d.negotiatedRate ?? null, id,
+      dueDate: d.dueDate, approvedAt: d.approvedAt, negotiatedRate: d.negotiatedRate ?? null,
+      moneyGivenOn: d.moneyGivenOn, repaidOn: d.repaidOn, amountPaid: d.amountPaid, cancelledOn: d.cancelledOn, cancelReason: d.cancelReason, id,
     });
   },
 

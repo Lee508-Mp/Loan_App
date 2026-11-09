@@ -3,6 +3,7 @@
 const Application = require("../models/Application");
 const { calculateLoan, createdDate, dateInTZ, addDays, decorateOverdue, round2 } = require("./loanCalculator");
 const { sendApplicationEmail } = require("./mailer");
+const { resolveLifecycle } = require("./lifecycleService");
 const { DUE_SOON_DAYS, TERMS_VERSION } = require("../config/loanRules");
 
 // A visitor applies. Interest, total and due date are worked out HERE, never trusted from the browser.
@@ -24,6 +25,7 @@ const editDefaults = (e) => ({
   contactMethod: e.contact_method, email: e.email, dueDate: e.due_date,
   collateralType: e.collateral_type, collateralDetails: e.collateral_details,
   negotiatedRate: e.negotiated_rate, nrc: e.nrc, location: e.location,
+  moneyGivenOn: e.money_given_on, repaidOn: e.repaid_on, amountPaid: e.amount_paid, cancelReason: e.cancel_reason,
 });
 
 // Decides interest, total and due date for an edit.
@@ -48,9 +50,16 @@ function planUpdate(existing, value, today = dateInTZ()) {
   };
 }
 
+// Returns { row } when saved, or { errors } when something does not add up (for example a repaid date before the money was given).
 function updateApplication(existing, value) {
-  Application.update(existing.id, { ...value, ...planUpdate(existing, value) });
-  return decorateOverdue(Application.findById(existing.id));
+  const plan = planUpdate(existing, value);
+  const life = resolveLifecycle(existing, {
+    status: value.status, moneyGivenOn: value.moneyGivenOn, repaidOn: value.repaidOn,
+    amountPaid: value.amountPaid, cancelReason: value.cancelReason,
+  }, { total: plan.totalRepayment });
+  if (life.errors) return { errors: life.errors };
+  Application.update(existing.id, { ...value, ...plan, ...life.values });
+  return { row: decorateOverdue(Application.findById(existing.id)) };
 }
 
 const listApplications = ({ status, text }) =>
@@ -62,7 +71,9 @@ function getAlerts() {
   const overdue = Application.findOverdue(today).map(decorateOverdue);
   const dueSoon = Application.findDueBetween(today, addDays(today, DUE_SOON_DAYS)).map(decorateOverdue);
   const awaitingCollateral = Application.findAwaitingCollateral().map(decorateOverdue);
-  return { today, overdue, dueSoon, awaitingCollateral, overdueTotal: round2(overdue.reduce((sum, r) => sum + r.total_repayment, 0)) };
+  const awaitingMoney = Application.findAwaitingMoney().map(decorateOverdue);
+  const missingDates = Application.findMissingDates().map(decorateOverdue);
+  return { today, overdue, dueSoon, awaitingCollateral, awaitingMoney, missingDates, overdueTotal: round2(overdue.reduce((sum, r) => sum + r.total_repayment, 0)) };
 }
 
 module.exports = { submitApplication, editDefaults, planUpdate, updateApplication, listApplications, getAlerts };

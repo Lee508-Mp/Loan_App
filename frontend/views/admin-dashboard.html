@@ -31,7 +31,7 @@
       <input id="search" type="search" placeholder="Search name or phone" aria-label="Search">
       <select id="statusFilter" aria-label="Filter by status">
         <option value="">All statuses</option>
-        <option value="overdue">overdue</option><option>new</option><option>contacted</option><option>approved</option><option>rejected</option><option>repaid</option>
+        <option value="overdue">overdue</option><option>new</option><option>contacted</option><option>approved</option><option>rejected</option><option>repaid</option><option>cancelled</option>
       </select>
       <span id="count" class="hint"></span>
     </div>
@@ -39,7 +39,7 @@
 
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Ref</th><th>Applied</th><th>Name</th><th>Phone</th><th>Amount</th><th>Total to repay</th><th>Due date</th><th>Collateral</th><th>Sent via</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Ref</th><th>Applied</th><th>Name</th><th>Phone</th><th>Amount</th><th>Total to repay</th><th>Due date</th><th>Money given</th><th>Collateral</th><th>Sent via</th><th>Status</th><th></th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
@@ -66,8 +66,12 @@
         <select id="eCollateral"><option value="">Not specified</option><option>Vehicle</option><option>Land or property</option><option>Electronics</option><option>Household items</option><option>Livestock</option><option>Business stock or equipment</option><option>Other</option></select></label>
       <label class="field" for="eCollateralDetails"><span>Collateral details</span><input id="eCollateralDetails" type="text" maxlength="200"></label>
       <label class="field" for="eStatus"><span>Status</span>
-        <select id="eStatus"><option>new</option><option>contacted</option><option>approved</option><option>rejected</option><option>repaid</option></select></label>
+        <select id="eStatus"><option>new</option><option>contacted</option><option>approved</option><option>rejected</option><option>repaid</option><option>cancelled</option></select></label>
       <label class="field" for="eDue"><span>Due date</span><input id="eDue" type="date"></label>
+      <label class="field" for="eMoneyGiven"><span>Money given on</span><input id="eMoneyGiven" type="date"></label>
+      <label class="field" for="eRepaidOn"><span>Repaid on</span><input id="eRepaidOn" type="date"></label>
+      <label class="field" for="eAmountPaid"><span>Amount paid (K)</span><input id="eAmountPaid" type="text" inputmode="decimal"></label>
+      <label class="field" for="eCancelReason"><span>Cancel reason (only if the status is cancelled)</span><input id="eCancelReason" type="text" maxlength="300"></label>
       <p id="eTerms" class="hint"></p>
       <label class="field" for="eNotes"><span>Notes</span><textarea id="eNotes" rows="3" maxlength="500"></textarea></label>
       <small id="editErr" class="error" role="alert"></small>
@@ -108,6 +112,34 @@
     </details>
     <p><button type="button" id="closeAdmins" class="btn ghost small">Close</button></p>
   </dialog>
+  <dialog id="repayDialog">
+    <form id="repayForm" novalidate>
+      <h2 id="repayTitle">Mark loan repaid</h2>
+      <p id="repayTotal" class="hint"></p>
+      <label class="field" id="repayGivenField" for="repayGiven" hidden><span>Money given on (this older loan has no date yet)</span><input id="repayGiven" type="date"></label>
+      <label class="field" for="repayDate"><span>Repaid on (leave empty for today)</span><input id="repayDate" type="date"></label>
+      <label class="field" for="repayAmount"><span>Amount paid (K)</span><input id="repayAmount" type="text" inputmode="decimal"></label>
+      <small id="repayErr" class="error" role="alert"></small>
+      <div class="actions">
+        <button type="button" id="repayClose" class="btn ghost">Close</button>
+        <button type="submit" class="btn">Save repayment</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="cancelDialog">
+    <form id="cancelForm" novalidate>
+      <h2 id="cancelTitle">Cancel loan</h2>
+      <p class="hint">The loan stays on record, and any money already given still counts as money given out. It can no longer be deleted.</p>
+      <label class="field" for="cancelReason"><span>Reason for cancelling</span><input id="cancelReason" type="text" maxlength="300"></label>
+      <small id="cancelErr" class="error" role="alert"></small>
+      <div class="actions">
+        <button type="button" id="cancelClose" class="btn ghost">Go back</button>
+        <button type="submit" class="btn danger">Cancel the loan</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="loanDialog">
     <h2 id="loanTitle">Collateral and messages</h2>
     <p id="loanMsg" class="hint" role="status"></p>
@@ -119,7 +151,10 @@
     <h3>2. Collateral</h3>
     <div id="collateralBox"></div>
 
-    <h3>3. Receipt message</h3>
+    <h3>3. Money given</h3>
+    <div id="moneyBox"></div>
+
+    <h3>4. Receipt message</h3>
     <p class="hint">Sends the customer a private link to their receipt.</p>
     <button type="button" id="draftReceipt" class="btn small">Write the receipt message</button>
 
@@ -138,5 +173,6 @@
   <script src="/assets/js/dashboard.js"></script>
   <script src="/assets/js/admins.js"></script>
   <script src="/assets/js/messages.js"></script>
+  <script src="/assets/js/lifecycle.js"></script>
 </body>
 </html>

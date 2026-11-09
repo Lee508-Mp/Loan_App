@@ -11,6 +11,7 @@
 - **Secrets** live in `.env` / Render's environment variables. `.env` and `*.db` are in `.gitignore`.
 - **The server refuses to start** with a missing or short `JWT_SECRET`.
 - **Errors** are logged on the server. Visitors only see a generic message.
+- **History is protected.** A loan with money given, or a repaid loan, cannot be deleted, only cancelled with a reason. Dates are checked so they add up (no repayment before the money was given, none in the future).
 - **Receipts** open with a private link that holds a random 48-character code, so they cannot be guessed. They show the NRC only in part and never the phone number, the email or your private notes. Pressing Undo on the collateral switches a link off.
 - **Email** goes only to the company inbox, never to the applicant's address, so the form cannot be used to spam people.
 

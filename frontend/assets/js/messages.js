@@ -57,6 +57,45 @@ function renderLoan() {
   } else {
     box.append(el("p", "Approve the loan first.", "hint"));
   }
+  renderMoney();
+}
+
+// Step 3: the day the money was handed to the customer. It comes after the collateral.
+function renderMoney() {
+  const r = loanRow, box = $("moneyBox");
+  box.replaceChildren();
+  if (r.money_given_on) {
+    box.append(el("p", `Money given on ${formatDate(r.money_given_on)}.`));
+    if (r.status === "approved") {
+      const undo = el("button", "Undo (recorded by mistake)", "btn danger small");
+      undo.type = "button";
+      undo.addEventListener("click", () => setMoney(false));
+      box.append(undo);
+    }
+  } else if (r.status === "approved" && r.collateral_received_at) {
+    const label = el("label", null, "field");
+    label.htmlFor = "moneyDate";
+    label.append(el("span", "Date the money was given (leave empty for today)"));
+    const input = el("input"); input.id = "moneyDate"; input.type = "date";
+    label.append(input);
+    const save = el("button", "Money given", "btn small");
+    save.type = "button";
+    save.addEventListener("click", () => setMoney(true));
+    box.append(label, save, el("p", "Saves the day you handed the money to the customer.", "hint"));
+  } else {
+    box.append(el("p", r.status === "approved" ? "Record that the collateral was received first." : "Approve the loan first.", "hint"));
+  }
+}
+
+async function setMoney(given) {
+  if (!given && !confirm("Undo the money given record?")) return;
+  try {
+    const date = given ? $("moneyDate").value : "";
+    loanRow = await api(`/api/admin/applications/${loanRow.id}/money-given`, { method: "POST", body: JSON.stringify({ given, date }) });
+    renderLoan();
+    loanSay(given ? "Money given recorded." : "The money given record was removed.");
+    load();       // refresh the table behind the window
+  } catch (err) { loanSay(err.message, true); }
 }
 
 async function setCollateral(received) {

@@ -51,6 +51,11 @@ addCol("location", "TEXT NOT NULL DEFAULT ''");
 addCol("collateral_received_at", "TEXT NOT NULL DEFAULT ''"); // YYYY-MM-DD. The repayment clock starts here
 addCol("collateral_notes", "TEXT NOT NULL DEFAULT ''");       // serial number, plate number, condition
 addCol("receipt_token", "TEXT NOT NULL DEFAULT ''");          // the secret part of the customer's receipt link
+addCol("money_given_on", "TEXT NOT NULL DEFAULT ''");  // YYYY-MM-DD. The day the money was handed to the customer
+addCol("repaid_on", "TEXT NOT NULL DEFAULT ''");       // YYYY-MM-DD. The day the loan was repaid
+addCol("amount_paid", "REAL NOT NULL DEFAULT 0");      // what the customer actually paid back
+addCol("cancelled_on", "TEXT NOT NULL DEFAULT ''");    // YYYY-MM-DD
+addCol("cancel_reason", "TEXT NOT NULL DEFAULT ''");
 addCol("approved_at", "TEXT NOT NULL DEFAULT ''");     // YYYY-MM-DD, set when the loan is approved
 
 // Fill in the loan columns for applications saved before they existed

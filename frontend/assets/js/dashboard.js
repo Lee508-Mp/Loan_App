@@ -28,7 +28,8 @@ function renderAlerts(a) {
   const n = a.overdue.length;
   document.title = (n ? `(${n}) ` : "") + "Dashboard | Copperline Admin";   // count shows on the browser tab
   const waiting = a.awaitingCollateral || [];
-  $("alertBar").hidden = n === 0 && a.dueSoon.length === 0 && waiting.length === 0;
+  const toPay = a.awaitingMoney || [], undated = a.missingDates || [];
+  $("alertBar").hidden = n === 0 && a.dueSoon.length === 0 && waiting.length === 0 && toPay.length === 0 && undated.length === 0;
   $("alertBar").classList.toggle("danger", n > 0);
   $("alertTitle").textContent = n
     ? `${plural(n, "overdue loan")}, ${formatMoney(a.overdueTotal)} owed`
@@ -44,6 +45,8 @@ function renderAlerts(a) {
   $("soonNote").textContent = [
     a.dueSoon.length ? `Due in the next 3 days: ${a.dueSoon.map((r) => `${r.name} (${formatDate(r.due_date)})`).join(", ")}` : "",
     waiting.length ? `Approved, waiting for collateral: ${waiting.map((r) => `${r.name} (#${r.id})`).join(", ")}` : "",
+    toPay.length ? `Collateral received, money not given yet: ${toPay.map((r) => `${r.name} (#${r.id})`).join(", ")}` : "",
+    undated.length ? `Repaid loans missing dates (press Edit to add them): ${undated.map((r) => `${r.name} (#${r.id})`).join(", ")}` : "",
   ].filter(Boolean).join("  |  ");
   $("viewOverdue").hidden = n === 0;
 }
@@ -75,6 +78,7 @@ function render() {
       cell(`${formatMoney(r.amount)} (${r.period})`, "num"),
       cell(`${formatMoney(r.total_repayment)} (${r.interest_rate}%${r.negotiated_rate != null ? ", negotiated" : ""})`, "num"),
       cell(r.status === "approved" && !r.collateral_received_at ? "Awaiting collateral" : formatDate(r.due_date)),
+      cell(r.money_given_on ? formatDate(r.money_given_on) : (r.status === "approved" ? "Not yet" : "")),
       cell(r.collateral_type || "Not specified", "", r.collateral_details),
       cell(r.contact_method === "email" ? "Email: " + r.email : "WhatsApp")
     );
@@ -87,8 +91,12 @@ function render() {
     const act = document.createElement("td");
     act.className = "row-actions";
     if (r.status === "approved" || r.status === "repaid") act.append(button("Messages", "ghost", () => openLoanDialog(r)));
-    if (r.status === "approved") act.append(button("Mark repaid", "ghost", () => markRepaid(r)));
-    act.append(button("Edit", "ghost", () => openEdit(r)), button("Delete", "danger", () => remove(r)));
+    if (r.status === "approved") act.append(button("Mark repaid", "ghost", () => openRepayDialog(r)));
+    act.append(button("Edit", "ghost", () => openEdit(r)));
+    // Once money has been given, a loan is kept on record. It can be cancelled, but never deleted.
+    const keepOnRecord = Boolean(r.money_given_on) || r.status === "repaid";
+    if (!keepOnRecord) act.append(button("Delete", "danger", () => remove(r)));
+    else if (r.status !== "repaid" && r.status !== "cancelled") act.append(button("Cancel loan", "danger", () => openCancelDialog(r)));
 
     tr.append(st, act);
     tbody.append(tr);
@@ -105,6 +113,8 @@ function openEdit(r) {
   $("ePeriod").value = r.period; $("eMethod").value = r.contact_method; $("eEmail").value = r.email;
   $("eCollateral").value = r.collateral_type; $("eCollateralDetails").value = r.collateral_details;
   $("eStatus").value = r.status; $("eDue").value = r.due_date; $("eNotes").value = r.notes;
+  $("eMoneyGiven").value = r.money_given_on; $("eRepaidOn").value = r.repaid_on;
+  $("eAmountPaid").value = r.amount_paid || ""; $("eCancelReason").value = r.cancel_reason;
   editingStandardRate = r.standard_rate; $("eNegRate").value = r.negotiated_rate ?? ""; previewNegotiated();
   $("eTerms").textContent =
     `Now: ${r.interest_rate}% interest, ${formatMoney(r.total_repayment)} to repay. ` +
@@ -124,6 +134,8 @@ $("editForm").addEventListener("submit", async (e) => {
         period: $("ePeriod").value, contactMethod: $("eMethod").value, email: $("eEmail").value,
         collateralType: $("eCollateral").value, collateralDetails: $("eCollateralDetails").value,
         negotiatedRate: $("eNegRate").value,
+        moneyGivenOn: $("eMoneyGiven").value, repaidOn: $("eRepaidOn").value,
+        amountPaid: $("eAmountPaid").value, cancelReason: $("eCancelReason").value,
         status: $("eStatus").value, dueDate: $("eDue").value, notes: $("eNotes").value,
       }),
     });
@@ -152,17 +164,6 @@ $("eNegRate").addEventListener("input", previewNegotiated);
 $("eAmount").addEventListener("input", previewNegotiated);
 
 $("cancelEdit").addEventListener("click", () => $("editDialog").close());
-
-async function markRepaid(r) {
-  if (!confirm(`Mark loan #${r.id} from ${r.name} as repaid?`)) return;
-  try {
-    await api("/api/admin/applications/" + r.id, {
-      method: "PUT",
-      body: JSON.stringify({ name: r.name, phone: r.phone, amount: r.amount, period: r.period, status: "repaid", notes: r.notes }),
-    });
-    load();
-  } catch (err) { $("pageErr").textContent = err.message; }
-}
 
 async function remove(r) {
   if (!confirm(`Delete application #${r.id} from ${r.name}? This cannot be undone.`)) return;

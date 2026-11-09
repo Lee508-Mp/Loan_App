@@ -101,6 +101,22 @@ function validateApplication(body, { admin = false } = {}) {
       if (!Number.isFinite(rate) || rate < 0 || rate > 100) errors.negotiatedRate = "Negotiated rate must be a number from 0 to 100.";
       else value.negotiatedRate = Math.round(rate * 100) / 100;
     }
+
+    // Dates and amounts that record the life of the loan. Empty means "not yet".
+    const day = (raw, key, label) => {
+      if (raw === undefined || raw === null || String(raw).trim() === "") return "";
+      if (!isValidDate(String(raw).trim())) { errors[key] = `Enter a valid ${label} date.`; return ""; }
+      return String(raw).trim();
+    };
+    value.moneyGivenOn = day(b.moneyGivenOn, "moneyGivenOn", "money given");
+    value.repaidOn = day(b.repaidOn, "repaidOn", "repaid");
+    const paid = b.amountPaid === undefined || b.amountPaid === null || String(b.amountPaid).trim() === ""
+      ? 0 : Number(String(b.amountPaid).replace(/[,\s]/g, ""));
+    if (!Number.isFinite(paid) || paid < 0 || paid > 100000000) errors.amountPaid = "Amount paid must be a number.";
+    else value.amountPaid = Math.round(paid * 100) / 100;
+    const reason = typeof b.cancelReason === "string" ? b.cancelReason.replace(/\s+/g, " ").trim() : "";
+    if (reason.length > 300) errors.cancelReason = "The reason must be 300 characters or fewer.";
+    else value.cancelReason = reason;
   }
   return { errors, value };
 }

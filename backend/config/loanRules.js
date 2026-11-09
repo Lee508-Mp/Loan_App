@@ -15,7 +15,7 @@ const MIN_AMOUNT = 100;
 const MAX_AMOUNT = 150000;
 
 const COLLATERAL_TYPES = ["Vehicle", "Land or property", "Electronics", "Household items", "Livestock", "Business stock or equipment", "Other"];
-const STATUSES = ["new", "contacted", "approved", "rejected", "repaid"];
+const STATUSES = ["new", "contacted", "approved", "rejected", "repaid", "cancelled"];
 const CONTACT_METHODS = ["whatsapp", "email"];
 // Bump this whenever you change frontend/views/terms.html. Each application records the version it accepted.
 const COMPANY_NAME = "Kandoz Investment Limited"; // shown on receipts and in messages. Change it to your company name

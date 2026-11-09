@@ -46,3 +46,6 @@ tr.overdue td:first-child{box-shadow:inset 4px 0 0 var(--err)}
 #loanDialog h3{font-size:1rem;margin:1.1rem 0 .3rem}
 #collateralBox p{margin:.2rem 0 .6rem}
 #collateralBox a,#loanDialog #fallbackLink{font-weight:600;margin-right:.8rem}
+
+.s-cancelled{border-color:var(--muted);color:var(--muted);text-decoration:line-through}
+#repayDialog,#cancelDialog{width:min(480px,94vw)}

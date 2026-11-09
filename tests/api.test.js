@@ -109,6 +109,8 @@ test("approve, receive the collateral, go overdue, alert, repay", async () => {
   assert.equal(alerts.overdueTotal, repay(1000, "1 week"));
   const filtered = await (await authed("/api/admin/applications?status=overdue")).json();
   assert.equal(filtered.length, 1);
+  // the money was handed over, then the customer repaid
+  assert.equal((await authed(`/api/admin/applications/${id}/money-given`, "POST", {})).status, 200);
   await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "repaid" }));
   assert.equal((await (await authed("/api/admin/alerts")).json()).overdue.length, 0);
 });
@@ -134,8 +136,13 @@ test("bad edits are rejected; delete works once", async () => {
   assert.equal((await authed(`/api/admin/applications/${id}`, "PUT", edit({ status: "hacked" }))).status, 400);
   assert.equal((await authed(`/api/admin/applications/${id}`, "PUT", edit({ dueDate: "2026-13-45" }))).status, 400);
   assert.equal((await authed("/api/admin/applications/99999", "PUT", edit())).status, 404);
-  assert.equal((await authed(`/api/admin/applications/${id}`, "DELETE")).status, 200);
-  assert.equal((await authed(`/api/admin/applications/${id}`, "DELETE")).status, 404);
+  // money was given on this loan, so it is kept on record
+  assert.equal((await authed(`/api/admin/applications/${id}`, "DELETE")).status, 409);
+  assert.equal((await authed("/api/admin/applications/99999", "DELETE")).status, 404);
+  // a loan that never had money given can be deleted, once
+  const spare = (await (await post("/api/applications", application)).json()).id;
+  assert.equal((await authed(`/api/admin/applications/${spare}`, "DELETE")).status, 200);
+  assert.equal((await authed(`/api/admin/applications/${spare}`, "DELETE")).status, 404);
 });
 
 test("logout", async () => {
