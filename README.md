@@ -50,6 +50,11 @@ scripts/   backup.js         tests/   automated tests         docs/   notes
 | POST | /api/admin/applications/:id/money-given | yes | given (true or false), date (optional, YYYY-MM-DD, default today) |
 | POST | /api/admin/applications/:id/repayment | yes | paidOn (optional), amountPaid (optional), moneyGivenOn (only for older loans with no date) |
 | POST | /api/admin/applications/:id/cancel | yes | reason (at least 3 characters) |
+| GET | /api/admin/reports/profit?from=2026-03-01&to=2026-03-31 | yes | The profit report as JSON. No dates means this month so far |
+| GET | /api/admin/reports/profit.csv?from=...&to=... | yes | The same report as a CSV file |
+| GET | /api/admin/expenses?from=...&to=... | yes | Expenses and losses in those dates |
+| POST | /api/admin/expenses | yes | spentOn (optional, default today), kind (expense or loss), description, amount, loanId (optional) |
+| DELETE | /api/admin/expenses/:id | yes | |
 | GET | /api/admin/applications/:id/message?kind=approval | yes | kind is approval or receipt. Returns the filled-in message |
 | POST | /api/admin/applications/:id/messages | yes | kind, text. Logs the message and returns the WhatsApp link |
 | GET | /api/receipts/:token | none | The customer's receipt. Needs the secret link |
@@ -109,6 +114,37 @@ These records are the base for the profit report. Every loan now keeps three dat
 **Older loans.** Loans you repaid before this update have no dates. The banner lists them: "Repaid loans missing dates". Press **Edit** on each, fill in **Money given on**, **Repaid on** and **Amount paid**, and save. The banner clears when every repaid loan has its dates. For an older approved loan, **Mark repaid** also asks for the money given date.
 
 **The Edit window** also has these fields, for corrections: Money given on, Repaid on, Amount paid and Cancel reason. Saving checks that the dates make sense (for example, a loan cannot be repaid before the money was given). If you set a repaid loan back to `approved`, its repaid date and amount are cleared, so you can fix a mistake.
+
+## Reports: profit, expenses and losses
+Press **Reports** at the top of the dashboard. It adds up the dates and amounts recorded on your loans, and the expenses and losses you enter, for any dates you choose.
+
+**How to use it**
+1. **Pick the dates.** Use **From** and **To**, or the quick buttons: This week, This month, Last month, This year. Press **Show report**. When you open it, it shows this month so far.
+2. **Read the cards.**
+   - **Money given out:** loans whose Money given date is in those dates.
+   - **Collected from customers:** what customers paid on loans repaid in those dates.
+   - **Interest collected:** what was collected, minus the money you originally gave on those same loans. "Agreed" shows what the interest was supposed to be, so you can see short payments.
+   - **Expenses** and **Losses:** the entries you recorded (see below).
+   - **PROFIT:** interest collected, minus expenses, minus losses. A negative profit shows in red.
+   - **Interest expected:** the interest on loans still out on the last day. It is not profit until it is paid.
+   - **Overdue right now:** the total to repay on loans that are overdue today.
+   - **Net cash:** collected, minus money given out, minus expenses.
+3. **Look at the tables.** **Month by month** shows each month in the range. **By repayment period** shows which periods (1 week, 2 weeks and so on) earned the most.
+4. **Download the CSV.** Press **Download CSV for your accountant**. The file has the totals, the month-by-month table, and the lists of loans repaid, money given, and expenses.
+
+**Recording expenses and losses.** Use the form in the Reports window: date (empty means today), type, a short description, the amount, and optionally a loan number.
+- An **expense** is a running cost, such as transport, airtime or rent.
+- A **loss** is loan money that will not come back. Use it when you cancel a loan after giving the money, and enter that loan's number. The report warns you about cancelled loans that had money given.
+- A wrong entry can be deleted from the list under the form.
+
+**A worked example.** In March you gave out K2,500 across 3 loans. One loan was repaid in March: K1,100 paid on K1,000 given, so interest collected is K100. You spent K200 on transport. **Profit = K100 - K200 = -K100.** Interest on loans still out is shown under "Interest expected", not in profit.
+
+**Good to know**
+- Interest is counted when it is **paid**, on the day the loan is marked repaid. A loan given in March and repaid in April counts as April's interest.
+- A loan that was never given a Money given date, or a repaid loan with no dates, cannot be counted. The report warns you. Press **Edit** on those loans and add the dates.
+- Deleted loans disappear from the report, which is why loans with money given can no longer be deleted.
+- Every admin can see the reports and the expenses. There are no separate roles yet.
+- On the free Render plan the database can be wiped, which erases your history. Download the CSV often, and use a paid plan with a disk before you rely on the reports.
 
 ## Terms and Conditions
 Visitors must accept `/terms` before they can see the form. The server also requires `acceptedTerms: true` and saves the time and version of acceptance with each application. Edit the text in `frontend/views/terms.html` (placeholder text: have a lawyer review it) and bump `TERMS_VERSION` in `backend/config/loanRules.js`.

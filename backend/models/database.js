@@ -74,6 +74,17 @@ db.exec(`
     admin_username TEXT NOT NULL,
     created_at     TEXT NOT NULL
   );
+  CREATE TABLE IF NOT EXISTS expenses (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    spent_on   TEXT NOT NULL,                     -- YYYY-MM-DD
+    kind       TEXT NOT NULL,                     -- 'expense' (a running cost) or 'loss' (money that will not come back)
+    description TEXT NOT NULL,
+    amount     REAL NOT NULL,
+    loan_id    INTEGER REFERENCES applications(id) ON DELETE SET NULL,
+    created_by TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(spent_on);
   CREATE INDEX IF NOT EXISTS idx_receipt_token ON applications(receipt_token);
 `);
 

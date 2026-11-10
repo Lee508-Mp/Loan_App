@@ -76,6 +76,8 @@ A request flows one way: **route -> controller -> service -> model -> database**
 | Wording of the approval and receipt messages | `backend/config/messageTemplates.js` |
 | Company name and receipt number prefix | `backend/config/loanRules.js` (`COMPANY_NAME`, `RECEIPT_PREFIX`) |
 | What the customer sees on the receipt | `backend/services/receiptService.js` (`receiptFor`) and `frontend/views/receipt.html` |
+| The profit report sums and the CSV | `backend/services/reportService.js` (the maths), `backend/models/Report.js` (the database questions) |
+| The Reports window | `frontend/assets/js/reports.js`, `frontend/views/admin-dashboard.html` |
 | Money given, repaid and cancelled rules | `backend/services/lifecycleService.js` (`resolveLifecycle` holds every rule) |
 | Collateral received, the repayment clock | `backend/services/receiptService.js` (`markCollateral`), `backend/services/applicationService.js` (`planUpdate`) |
 | Colours, fonts, layout | `frontend/assets/css/` |

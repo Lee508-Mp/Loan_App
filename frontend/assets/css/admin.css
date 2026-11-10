@@ -49,3 +49,24 @@ tr.overdue td:first-child{box-shadow:inset 4px 0 0 var(--err)}
 
 .s-cancelled{border-color:var(--muted);color:var(--muted);text-decoration:line-through}
 #repayDialog,#cancelDialog{width:min(480px,94vw)}
+
+#reportDialog{width:min(760px,96vw)}
+#reportDialog h3{font-size:1rem;margin:1.1rem 0 .3rem}
+.rep-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end}
+.rep-controls .field{margin:0}
+.rep-presets{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+.rep-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin:.6rem 0}
+.rep-card{border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;background:var(--bg)}
+.rep-card span{display:block;color:var(--muted);font-size:.85rem}
+.rep-card b{display:block;font-size:1.2rem}
+.rep-card small{display:block;color:var(--muted);font-size:.78rem}
+.rep-card.profit{border-color:var(--green);border-width:2px}
+.rep-card.profit b{color:var(--green)}
+.rep-card.loss{border-color:var(--err);border-width:2px}
+.rep-card.loss b{color:var(--err)}
+.rep-warn{background:var(--surface);border-left:4px solid var(--copper);padding:.45rem .7rem;margin:.4rem 0;border-radius:6px}
+.rep-table{width:100%;min-width:0;border-collapse:collapse}
+.rep-table td.num{text-align:right;white-space:nowrap}
+.exp-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem;align-items:end}
+.exp-form .field{margin:0}
+#reportDialog summary{cursor:pointer;font-weight:600;margin:.6rem 0 .2rem}

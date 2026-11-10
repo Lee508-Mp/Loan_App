@@ -11,6 +11,7 @@
 - **Secrets** live in `.env` / Render's environment variables. `.env` and `*.db` are in `.gitignore`.
 - **The server refuses to start** with a missing or short `JWT_SECRET`.
 - **Errors** are logged on the server. Visitors only see a generic message.
+- **CSV downloads** put a ' in front of any text that starts with = + - or @, so a spreadsheet cannot run it as a formula.
 - **History is protected.** A loan with money given, or a repaid loan, cannot be deleted, only cancelled with a reason. Dates are checked so they add up (no repayment before the money was given, none in the future).
 - **Receipts** open with a private link that holds a random 48-character code, so they cannot be guessed. They show the NRC only in part and never the phone number, the email or your private notes. Pressing Undo on the collateral switches a link off.
 - **Email** goes only to the company inbox, never to the applicant's address, so the form cannot be used to spam people.
@@ -18,6 +19,7 @@
 ## Honest gaps (decide which matter before going live)
 | Gap | Why it matters | Fix |
 |---|---|---|
+| Every admin can see profit reports and expenses | Staff who should not see the company's profit can | Add roles, so only the owner sees Reports |
 | A receipt link works for anyone who has it and does not expire | If a customer forwards it, others can read that receipt | Undo the collateral record to switch a link off. Add an expiry if you need one |
 | One shared admin account, no password-change page | If staff share a login you cannot tell who did what | Add multiple admins and a change-password page |
 | No audit log | A company will want to know who edited or deleted a record | Add an `audit_log` table written by `adminController` |

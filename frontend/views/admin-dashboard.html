@@ -14,6 +14,7 @@
   <header class="top bar">
     <span class="brand">Kandoz Investments Admin</span>
     <div class="bar-actions">
+      <button id="reportsBtn" class="btn ghost small" type="button">Reports</button>
       <button id="adminsBtn" class="btn ghost small" type="button">Admins</button>
       <button id="logout" class="btn ghost small" type="button">Log out</button>
     </div>
@@ -112,6 +113,60 @@
     </details>
     <p><button type="button" id="closeAdmins" class="btn ghost small">Close</button></p>
   </dialog>
+  <dialog id="reportDialog">
+    <h2>Reports</h2>
+    <p id="repMsg" class="hint" role="status"></p>
+
+    <div class="rep-controls">
+      <label class="field" for="repFrom"><span>From</span><input id="repFrom" type="date"></label>
+      <label class="field" for="repTo"><span>To</span><input id="repTo" type="date"></label>
+      <button type="button" id="repShow" class="btn small">Show report</button>
+    </div>
+    <div class="rep-presets">
+      <button type="button" class="btn ghost small" data-preset="week">This week</button>
+      <button type="button" class="btn ghost small" data-preset="month">This month</button>
+      <button type="button" class="btn ghost small" data-preset="lastMonth">Last month</button>
+      <button type="button" class="btn ghost small" data-preset="year">This year</button>
+    </div>
+
+    <section id="repBody" hidden>
+      <div id="repCards" class="rep-cards"></div>
+      <div id="repNotes"></div>
+
+      <h3>Month by month</h3>
+      <div class="table-scroll"><table id="repMonths" class="rep-table"></table></div>
+      <h3>By repayment period</h3>
+      <div class="table-scroll"><table id="repPeriods" class="rep-table"></table></div>
+
+      <details>
+        <summary>How these numbers are worked out</summary>
+        <ul class="hint">
+          <li><b>Money given out:</b> loans whose Money given date is in these dates.</li>
+          <li><b>Collected:</b> what customers paid on loans repaid in these dates.</li>
+          <li><b>Interest collected:</b> collected, minus the money that was given on those same loans. Interest is counted when it is paid.</li>
+          <li><b>Profit:</b> interest collected, minus expenses, minus losses.</li>
+          <li><b>Interest expected:</b> the interest on loans still out on the last day. It is not profit yet.</li>
+          <li><b>Overdue right now:</b> the total to repay on loans that are overdue today.</li>
+          <li><b>Net cash:</b> collected, minus money given out, minus expenses.</li>
+        </ul>
+      </details>
+      <p><a id="repCsv" class="btn ghost small" href="#">Download CSV for your accountant</a></p>
+    </section>
+
+    <h3>Expenses and losses (for these dates)</h3>
+    <p class="hint">An <b>expense</b> is a running cost, such as transport or airtime. A <b>loss</b> is loan money that will not come back.</p>
+    <form id="expForm" class="exp-form" novalidate>
+      <label class="field" for="expDate"><span>Date (empty = today)</span><input id="expDate" type="date"></label>
+      <label class="field" for="expKind"><span>Type</span><select id="expKind"><option value="expense">Expense</option><option value="loss">Loss</option></select></label>
+      <label class="field" for="expDesc"><span>What was it?</span><input id="expDesc" type="text" maxlength="200"></label>
+      <label class="field" for="expAmount"><span>Amount (K)</span><input id="expAmount" type="text" inputmode="decimal"></label>
+      <label class="field" for="expLoan"><span>Loan # (optional)</span><input id="expLoan" type="text" inputmode="numeric"></label>
+      <button type="submit" class="btn small">Add</button>
+    </form>
+    <ul id="expList" class="admin-list"></ul>
+    <p><button type="button" id="repClose" class="btn ghost small">Close</button></p>
+  </dialog>
+
   <dialog id="repayDialog">
     <form id="repayForm" novalidate>
       <h2 id="repayTitle">Mark loan repaid</h2>
@@ -174,5 +229,6 @@
   <script src="/assets/js/admins.js"></script>
   <script src="/assets/js/messages.js"></script>
   <script src="/assets/js/lifecycle.js"></script>
+  <script src="/assets/js/reports.js"></script>
 </body>
 </html>
